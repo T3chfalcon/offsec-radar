@@ -1,0 +1,276 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Primary Colors */
+    --color-primary: #0A1628; /* Deep command center authority */
+    --color-primary-50: #F0F4F8; /* Lightest primary tint */
+    --color-primary-100: #D9E2EC; /* Light primary tint */
+    --color-primary-200: #BCCCDC; /* Medium-light primary tint */
+    --color-primary-300: #9FB3C8; /* Medium primary tint */
+    --color-primary-400: #829AB1; /* Medium-dark primary tint */
+    --color-primary-500: #627D98; /* Base primary shade */
+    --color-primary-600: #486581; /* Dark primary shade */
+    --color-primary-700: #334E68; /* Darker primary shade */
+    --color-primary-800: #243B53; /* Very dark primary shade */
+    --color-primary-900: #1A365D; /* Darkest primary shade */
+    --color-primary-foreground: #F7FAFC; /* High contrast white */
+
+    /* Secondary Colors */
+    --color-secondary: #1A365D; /* Supporting depth, interface structure */
+    --color-secondary-50: #F0F4F8; /* Lightest secondary tint */
+    --color-secondary-100: #D9E2EC; /* Light secondary tint */
+    --color-secondary-200: #BCCCDC; /* Medium-light secondary tint */
+    --color-secondary-300: #9FB3C8; /* Medium secondary tint */
+    --color-secondary-400: #829AB1; /* Medium-dark secondary tint */
+    --color-secondary-500: #627D98; /* Base secondary shade */
+    --color-secondary-600: #486581; /* Dark secondary shade */
+    --color-secondary-700: #334E68; /* Darker secondary shade */
+    --color-secondary-800: #243B53; /* Very dark secondary shade */
+    --color-secondary-900: #1A365D; /* Darkest secondary shade */
+    --color-secondary-foreground: #F7FAFC; /* High contrast white */
+
+    /* Accent Colors */
+    --color-accent: #00FF88; /* Active discovery moments, success states */
+    --color-accent-50: #F0FFF4; /* Lightest accent tint */
+    --color-accent-100: #C6F6D5; /* Light accent tint */
+    --color-accent-200: #9AE6B4; /* Medium-light accent tint */
+    --color-accent-300: #68D391; /* Medium accent tint */
+    --color-accent-400: #48BB78; /* Medium-dark accent tint */
+    --color-accent-500: #38A169; /* Base accent shade */
+    --color-accent-600: #2F855A; /* Dark accent shade */
+    --color-accent-700: #276749; /* Darker accent shade */
+    --color-accent-800: #22543D; /* Very dark accent shade */
+    --color-accent-900: #1C4532; /* Darkest accent shade */
+    --color-accent-foreground: #1A202C; /* Dark text on accent */
+
+    /* Background Colors */
+    --color-background: #F7FAFC; /* Clean data canvas, extended reading */
+    --color-background-dark: #1A202C; /* Rich dark background */
+    --color-surface: #EDF2F7; /* Subtle component separation, card backgrounds */
+    --color-surface-dark: #2D3748; /* Dark surface */
+
+    /* Text Colors */
+    --color-text-primary: #1A202C; /* High contrast readability, data clarity */
+    --color-text-secondary: #4A5568; /* Clear hierarchy, supporting information */
+    --color-text-primary-dark: #F7FAFC; /* High-contrast white for dark theme */
+    --color-text-secondary-dark: #CBD5E0; /* Muted light gray for dark theme */
+
+    /* Status Colors */
+    --color-success: #38A169; /* Tool verification, positive feedback */
+    --color-success-50: #F0FFF4; /* Lightest success tint */
+    --color-success-100: #C6F6D5; /* Light success tint */
+    --color-success-200: #9AE6B4; /* Medium-light success tint */
+    --color-success-300: #68D391; /* Medium success tint */
+    --color-success-400: #48BB78; /* Medium-dark success tint */
+    --color-success-500: #38A169; /* Base success shade */
+    --color-success-600: #2F855A; /* Dark success shade */
+    --color-success-700: #276749; /* Darker success shade */
+    --color-success-800: #22543D; /* Very dark success shade */
+    --color-success-900: #1C4532; /* Darkest success shade */
+    --color-success-foreground: #FFFFFF; /* White text on success */
+
+    --color-warning: #D69E2E; /* Alert configuration, attention without panic */
+    --color-warning-50: #FFFBEB; /* Lightest warning tint */
+    --color-warning-100: #FEF5E7; /* Light warning tint */
+    --color-warning-200: #FEEBC8; /* Medium-light warning tint */
+    --color-warning-300: #FBD38D; /* Medium warning tint */
+    --color-warning-400: #F6AD55; /* Medium-dark warning tint */
+    --color-warning-500: #ED8936; /* Base warning shade */
+    --color-warning-600: #DD6B20; /* Dark warning shade */
+    --color-warning-700: #C05621; /* Darker warning shade */
+    --color-warning-800: #9C4221; /* Very dark warning shade */
+    --color-warning-900: #7B341E; /* Darkest warning shade */
+    --color-warning-foreground: #FFFFFF; /* White text on warning */
+
+    --color-error: #E53E3E; /* Critical security alerts, helpful concern */
+    --color-error-50: #FED7D7; /* Lightest error tint */
+    --color-error-100: #FEB2B2; /* Light error tint */
+    --color-error-200: #FC8181; /* Medium-light error tint */
+    --color-error-300: #F56565; /* Medium error tint */
+    --color-error-400: #E53E3E; /* Base error shade */
+    --color-error-500: #C53030; /* Dark error shade */
+    --color-error-600: #9B2C2C; /* Darker error shade */
+    --color-error-700: #742A2A; /* Very dark error shade */
+    --color-error-800: #63171B; /* Darkest error shade */
+    --color-error-900: #521B1B; /* Deepest error shade */
+    --color-error-foreground: #FFFFFF; /* White text on error */
+
+    /* Border Colors */
+    --color-border: #E2E8F0; /* Default border color */
+    --color-border-accent: rgba(0, 255, 136, 0.2); /* Accent border with opacity */
+
+    /* Conversion Colors */
+    --color-conversion: #FFB800; /* Warning amber for CTAs */
+    --color-conversion-50: #FFFBEB; /* Lightest conversion tint */
+    --color-conversion-100: #FEF5E7; /* Light conversion tint */
+    --color-conversion-200: #FEEBC8; /* Medium-light conversion tint */
+    --color-conversion-300: #FBD38D; /* Medium conversion tint */
+    --color-conversion-400: #F6AD55; /* Medium-dark conversion tint */
+    --color-conversion-500: #ED8936; /* Base conversion shade */
+    --color-conversion-600: #DD6B20; /* Dark conversion shade */
+    --color-conversion-700: #C05621; /* Darker conversion shade */
+    --color-conversion-800: #9C4221; /* Very dark conversion shade */
+    --color-conversion-900: #7B341E; /* Darkest conversion shade */
+    --color-conversion-foreground: #1A202C; /* Dark text on conversion */
+
+    /* Animation Variables */
+    --animation-duration-fast: 0.2s;
+    --animation-duration-normal: 0.3s;
+    --animation-duration-slow: 0.8s;
+    --animation-easing: ease-out;
+
+    /* Shadow Variables */
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    --shadow-accent: 0 0 0 0 rgba(0, 255, 136, 0.7);
+    --shadow-accent-expanded: 0 0 0 10px rgba(0, 255, 136, 0);
+
+    /* Grid Pattern */
+    --grid-pattern: linear-gradient(rgba(0, 255, 136, 0.1) 1px, transparent 1px);
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-text-primary font-sans;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  }
+
+  .font-mono {
+    font-family: 'JetBrains Mono', 'Fira Code', 'Monaco', 'Consolas', 'Liberation Mono', 'Courier New', monospace;
+  }
+}
+
+@layer components {
+  /* Cyber Grid Animation */
+  .cyber-grid {
+    background-image: var(--grid-pattern);
+    background-size: 20px 20px;
+    animation: gridMove 20s linear infinite;
+  }
+
+  @keyframes gridMove {
+    0% { transform: translateY(0); }
+    100% { transform: translateY(-20px); }
+  }
+
+  /* Pulse Animation for Real-time Indicators */
+  .pulse-indicator {
+    animation: pulseGlow 2s infinite;
+  }
+
+  @keyframes pulseGlow {
+    0% { box-shadow: var(--shadow-accent); }
+    70% { box-shadow: var(--shadow-accent-expanded); }
+    100% { box-shadow: var(--shadow-accent); }
+  }
+
+  /* Intelligence Flow Animation */
+  .intelligence-flow {
+    animation: flowMove 8s ease-in-out infinite;
+  }
+
+  @keyframes flowMove {
+    0% { transform: translateX(-100%); opacity: 0.3; }
+    50% { opacity: 1; }
+    100% { transform: translateX(100%); opacity: 0.3; }
+  }
+
+  /* Holographic Card Effect */
+  .holographic-card {
+    backdrop-filter: blur(10px);
+    background: rgba(10, 22, 40, 0.8);
+    border: 1px solid var(--color-border-accent);
+    transition: transform var(--animation-duration-normal) var(--animation-easing);
+  }
+
+  .holographic-card:hover {
+    transform: rotateX(2deg);
+  }
+
+  /* Command Terminal Typography */
+  .terminal-text {
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
+    text-shadow: 0 0 10px rgba(0, 255, 136, 0.3);
+  }
+
+  /* Quantum Particle Effects */
+  .quantum-particle {
+    animation: quantumFloat 4s ease-in-out infinite;
+  }
+
+  @keyframes quantumFloat {
+    0%, 100% { transform: translate3d(0, 0, 0); opacity: 0.3; }
+    25% { transform: translate3d(10px, -10px, 0); opacity: 0.7; }
+    50% { transform: translate3d(-5px, -20px, 0); opacity: 1; }
+    75% { transform: translate3d(-10px, -5px, 0); opacity: 0.7; }
+  }
+
+  /* Slide Animations */
+  .slide-in-right {
+    animation: slideInRight 0.5s ease-out;
+  }
+
+  @keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+
+  /* Smooth Transitions */
+  .smooth-transition {
+    transition: all var(--animation-duration-normal) var(--animation-easing);
+  }
+
+  /* Interactive Hover Effects */
+  .interactive-hover {
+    transition: transform var(--animation-duration-fast) var(--animation-easing);
+  }
+
+  .interactive-hover:hover {
+    transform: translateY(-2px);
+  }
+
+  /* Tool Card Hover Effect */
+  .tool-card-hover {
+    transition: all var(--animation-duration-fast) var(--animation-easing);
+  }
+
+  .tool-card-hover:hover {
+    transform: scale(1.02);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+@layer utilities {
+  /* Text Utilities */
+  .text-primary { color: var(--color-text-primary); }
+  .text-secondary { color: var(--color-text-secondary); }
+  .text-primary-dark { color: var(--color-text-primary-dark); }
+  .text-secondary-dark { color: var(--color-text-secondary-dark); }
+
+  /* Background Utilities */
+  .bg-primary { background-color: var(--color-primary); }
+  .bg-secondary { background-color: var(--color-secondary); }
+  .bg-accent { background-color: var(--color-accent); }
+  .bg-surface { background-color: var(--color-surface); }
+  .bg-surface-dark { background-color: var(--color-surface-dark); }
+  .bg-background-dark { background-color: var(--color-background-dark); }
+
+  /* Border Utilities */
+  .border-accent { border-color: var(--color-border-accent); }
+
+  /* Animation Utilities */
+  .animate-fast { animation-duration: var(--animation-duration-fast); }
+  .animate-normal { animation-duration: var(--animation-duration-normal); }
+  .animate-slow { animation-duration: var(--animation-duration-slow); }
+}
