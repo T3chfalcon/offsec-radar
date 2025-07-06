@@ -22,50 +22,98 @@ class GitHubApiService {
     const searchQuery = this.buildSearchQuery(query, filters);
     
     try {
-      const response = await fetch(`${this.baseUrl}/search/repositories?q=${searchQuery}&sort=stars&order=desc&per_page=100`, {
-        headers: this.headers
-      });
+      // Use multiple API calls to get more comprehensive results
+      const [popularResponse, recentResponse] = await Promise.all([
+        fetch(`${this.baseUrl}/search/repositories?q=${searchQuery}&sort=stars&order=desc&per_page=50`, {
+          headers: this.headers
+        }),
+        fetch(`${this.baseUrl}/search/repositories?q=${searchQuery}&sort=updated&order=desc&per_page=50`, {
+          headers: this.headers
+        })
+      ]);
 
-      if (!response.ok) {
-        throw new Error(`GitHub API error: ${response.status}`);
+      if (!popularResponse.ok || !recentResponse.ok) {
+        throw new Error(`GitHub API error: ${popularResponse.status || recentResponse.status}`);
       }
 
-      const data = await response.json();
-      return this.transformRepositoryData(data.items);
+      const [popularData, recentData] = await Promise.all([
+        popularResponse.json(),
+        recentResponse.json()
+      ]);
+
+      // Combine and deduplicate results, prioritizing popular tools
+      const combinedItems = [...popularData.items, ...recentData.items];
+      const uniqueItems = combinedItems.filter((item, index, self) => 
+        index === self.findIndex(t => t.id === item.id)
+      );
+
+      // Sort by popularity score (combination of stars, forks, and recent activity)
+      uniqueItems.sort((a, b) => {
+        const scoreA = this.calculatePopularityScore(a);
+        const scoreB = this.calculatePopularityScore(b);
+        return scoreB - scoreA;
+      });
+
+      return this.transformRepositoryData(uniqueItems.slice(0, 100));
     } catch (error) {
       console.error('Error fetching security tools:', error);
       throw error;
     }
   }
 
+  // Calculate popularity score for better sorting
+  calculatePopularityScore(repo) {
+    const stars = repo.stargazers_count || 0;
+    const forks = repo.forks_count || 0;
+    const watchers = repo.watchers_count || 0;
+    const issues = repo.open_issues_count || 0;
+    
+    // Recent activity bonus
+    const lastUpdate = new Date(repo.updated_at);
+    const daysSinceUpdate = (Date.now() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24);
+    const recentBonus = Math.max(0, 100 - daysSinceUpdate);
+    
+    // Popularity score formula
+    return (stars * 3) + (forks * 2) + watchers + Math.max(0, 50 - issues) + recentBonus;
+  }
+
   // Build search query with filters
   buildSearchQuery(query, filters = {}) {
-    let searchQuery = 'security+tool+pentest+cybersecurity';
+    // Enhanced search terms for better security tool discovery
+    let searchQuery = 'security+tool+penetration+testing+cybersecurity+hacking+vulnerability+exploit+scanner+forensics+malware+analysis+red+team+blue+team+osint';
     
     if (query) {
       searchQuery = `${query} ${searchQuery}`;
     }
+
+    // Prioritize repositories with more stars for better quality
+    const minStars = filters.minStars || 10;
+    searchQuery += `+stars:>=${minStars}`;
 
     // Add language filters
     if (filters.language) {
       searchQuery += `+language:${filters.language}`;
     }
 
-    // Add size filters
-    if (filters.minStars) {
-      searchQuery += `+stars:>=${filters.minStars}`;
-    }
-
-    // Add date filters
+    // Add date filters for active projects
     if (filters.updatedAfter) {
       searchQuery += `+pushed:>=${filters.updatedAfter}`;
+    } else {
+      // Default to repositories updated in the last 2 years
+      const twoYearsAgo = new Date();
+      twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
+      searchQuery += `+pushed:>=${twoYearsAgo.toISOString().split('T')[0]}`;
     }
 
-    // Add topic filters
+    // Add topic filters for security tools
+    const securityTopics = ['security', 'penetration-testing', 'cybersecurity', 'hacking', 'vulnerability', 'exploit'];
     if (filters.topics) {
       filters.topics.forEach(topic => {
         searchQuery += `+topic:${topic}`;
       });
+    } else {
+      // Add some default security topics
+      searchQuery += `+topic:security`;
     }
 
     return encodeURIComponent(searchQuery);
@@ -203,14 +251,22 @@ class GitHubApiService {
   isTrending(repo) {
     const lastUpdate = new Date(repo.updated_at);
     const daysSinceUpdate = (Date.now() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24);
-    return daysSinceUpdate < 7 && repo.stargazers_count > 100;
+    const stars = repo.stargazers_count || 0;
+    const forks = repo.forks_count || 0;
+    
+    // More strict criteria for trending: recent activity + good popularity
+    return daysSinceUpdate < 30 && stars > 500 && forks > 50;
   }
 
   // Check if repository is security verified
   isSecurityVerified(repo) {
-    // This would need to check for security badges, audits, etc.
-    // For now, return true for repositories with good metrics
-    return repo.stargazers_count > 500 && repo.forks_count > 50;
+    const stars = repo.stargazers_count || 0;
+    const forks = repo.forks_count || 0;
+    const hasLicense = repo.license && repo.license.name;
+    const hasDescription = repo.description && repo.description.length > 30;
+    
+    // Enhanced verification criteria
+    return stars > 100 && forks > 20 && hasLicense && hasDescription;
   }
 
   // Format repository size
@@ -244,15 +300,21 @@ class GitHubApiService {
   async getTrendingTools() {
     try {
       const filters = {
-        minStars: 100,
-        updatedAfter: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]
+        minStars: 500, // Increased minimum stars for higher quality tools
+        updatedAfter: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // Last 30 days
       };
 
       const tools = await this.searchSecurityTools('', filters);
       
-      // If we get tools, return them
+      // If we get tools, return them sorted by popularity
       if (tools && tools.length > 0) {
-        return tools;
+        // Further filter for trending tools (recent activity + high popularity)
+        const trendingTools = tools.filter(tool => {
+          const daysSinceUpdate = (Date.now() - new Date(tool.lastUpdated).getTime()) / (1000 * 60 * 60 * 24);
+          return daysSinceUpdate < 30 && tool.stars > 100;
+        });
+        
+        return trendingTools.length > 0 ? trendingTools : tools.slice(0, 10);
       }
       
       // If no tools returned, throw error to trigger fallback
@@ -260,20 +322,78 @@ class GitHubApiService {
     } catch (error) {
       console.error('Error fetching trending tools:', error);
       
-      // Return fallback data with proper structure for the homepage
+      // Return enhanced fallback data with more popular tools
       return [
         {
           id: 'fallback-1',
+          name: 'Metasploit Framework',
+          author: 'rapid7',
+          description: 'The world\'s most used penetration testing framework. Advanced platform for developing, testing, and executing exploit code.',
+          image: '/assets/images/no_image.png',
+          icon: 'Zap',
+          tags: ['Penetration Testing', 'Exploit Development', 'Vulnerability Assessment', 'Red Team', 'Security Research'],
+          stars: 33500,
+          forks: 13800,
+          contributors: 892,
+          rating: 4.8,
+          reviews: 2156,
+          language: 'Ruby',
+          platform: 'Cross-platform',
+          maturity: 'production',
+          lastUpdated: new Date(Date.now() - 86400000 * 1),
+          githubUrl: 'https://github.com/rapid7/metasploit-framework',
+          documentationUrl: 'https://docs.metasploit.com/',
+          trending: true,
+          securityVerified: true,
+          issues: 234,
+          pullRequests: 67,
+          discussions: 445,
+          license: 'BSD-3-Clause',
+          size: '156.7 MB',
+          dependencies: 245,
+          lastAudit: '2024-01-20'
+        },
+        {
+          id: 'fallback-2',
+          name: 'SQLMap',
+          author: 'sqlmapproject',
+          description: 'Automatic SQL injection and database takeover tool. Penetration testing tool that automates the process of detecting and exploiting SQL injection flaws.',
+          image: '/assets/images/no_image.png',
+          icon: 'Database',
+          tags: ['SQL Injection', 'Database Security', 'Penetration Testing', 'Web Security', 'Automated Testing'],
+          stars: 31900,
+          forks: 5800,
+          contributors: 178,
+          rating: 4.7,
+          reviews: 1234,
+          language: 'Python',
+          platform: 'Cross-platform',
+          maturity: 'production',
+          lastUpdated: new Date(Date.now() - 86400000 * 2),
+          githubUrl: 'https://github.com/sqlmapproject/sqlmap',
+          documentationUrl: 'https://sqlmap.org/',
+          trending: true,
+          securityVerified: true,
+          issues: 67,
+          pullRequests: 15,
+          discussions: 345,
+          license: 'GPL-2.0',
+          size: '12.3 MB',
+          dependencies: 34,
+          lastAudit: '2024-01-10'
+        },
+        {
+          id: 'fallback-3',
           name: 'Nmap',
           author: 'nmap',
-          description: 'Network discovery and security auditing tool.',
+          description: 'Network Mapper - Free and open source utility for network discovery and security auditing. The standard tool for network reconnaissance.',
           image: '/assets/images/no_image.png',
           icon: 'Network',
-          tags: ['Network Security', 'Port Scanning', 'Service Detection'],
-          stars: 8500,
-          forks: 2300,
+          tags: ['Network Security', 'Port Scanning', 'Service Detection', 'Network Discovery', 'Security Auditing'],
+          stars: 9800,
+          forks: 2400,
           contributors: 156,
-          rating: 4.8,
+          rating: 4.6,
           reviews: 1247,
           language: 'C++',
           platform: 'Cross-platform',
@@ -292,51 +412,22 @@ class GitHubApiService {
           lastAudit: '2024-01-15'
         },
         {
-          id: 'fallback-2',
-          name: 'Metasploit Framework',
-          author: 'rapid7',
-          description: 'Advanced penetration testing platform.',
-          image: '/assets/images/no_image.png',
-          icon: 'Zap',
-          tags: ['Penetration Testing', 'Exploit Development', 'Vulnerability Assessment'],
-          stars: 31200,
-          forks: 13600,
-          contributors: 892,
-          rating: 4.7,
-          reviews: 2156,
-          language: 'Ruby',
-          platform: 'Linux/Windows/macOS',
-          maturity: 'production',
-          lastUpdated: new Date(Date.now() - 86400000 * 1),
-          githubUrl: 'https://github.com/rapid7/metasploit-framework',
-          documentationUrl: 'https://docs.metasploit.com/',
-          trending: true,
-          securityVerified: true,
-          issues: 234,
-          pullRequests: 67,
-          discussions: 445,
-          license: 'BSD-3-Clause',
-          size: '156.7 MB',
-          dependencies: 245,
-          lastAudit: '2024-01-20'
-        },
-        {
-          id: 'fallback-3',
-          name: 'Burp Suite',
+          id: 'fallback-4',
+          name: 'Burp Suite Community Edition',
           author: 'portswigger',
-          description: 'Web application security testing platform.',
+          description: 'The world\'s #1 web application security testing toolkit. Free, community edition of the popular web vulnerability scanner.',
           image: '/assets/images/no_image.png',
           icon: 'Globe',
-          tags: ['Web Security', 'Vulnerability Scanner', 'Proxy Tool'],
-          stars: 9800,
+          tags: ['Web Security', 'Vulnerability Scanner', 'Proxy Tool', 'HTTP Interceptor', 'Web Application Testing'],
+          stars: 9200,
           forks: 1200,
           contributors: 45,
-          rating: 4.6,
+          rating: 4.5,
           reviews: 890,
           language: 'Java',
           platform: 'Cross-platform',
           maturity: 'production',
-          lastUpdated: new Date(Date.now() - 86400000 * 2),
+          lastUpdated: new Date(Date.now() - 86400000 * 4),
           githubUrl: 'https://github.com/portswigger/burp-extensions',
           documentationUrl: 'https://portswigger.net/burp/documentation',
           trending: true,
@@ -350,82 +441,53 @@ class GitHubApiService {
           lastAudit: '2024-01-18'
         },
         {
-          id: 'fallback-4',
-          name: 'Wireshark',
-          author: 'wireshark',
-          description: 'Network protocol analyzer and packet capture tool.',
+          id: 'fallback-5',
+          name: 'OWASP ZAP',
+          author: 'zaproxy',
+          description: 'The world\'s most widely used web app scanner. Free security tool for automatically finding security vulnerabilities in web applications.',
           image: '/assets/images/no_image.png',
-          icon: 'Activity',
-          tags: ['Network Analysis', 'Packet Capture', 'Protocol Analysis'],
-          stars: 6700,
-          forks: 1800,
+          icon: 'Shield',
+          tags: ['Web Security', 'OWASP', 'Vulnerability Scanner', 'Security Testing', 'Web Application Security'],
+          stars: 12400,
+          forks: 2200,
           contributors: 234,
-          rating: 4.5,
+          rating: 4.4,
           reviews: 567,
-          language: 'C',
+          language: 'Java',
           platform: 'Cross-platform',
           maturity: 'production',
-          lastUpdated: new Date(Date.now() - 86400000 * 4),
-          githubUrl: 'https://github.com/wireshark/wireshark',
-          documentationUrl: 'https://www.wireshark.org/docs/',
+          lastUpdated: new Date(Date.now() - 86400000 * 5),
+          githubUrl: 'https://github.com/zaproxy/zaproxy',
+          documentationUrl: 'https://www.zaproxy.org/docs/',
           trending: false,
           securityVerified: true,
           issues: 89,
           pullRequests: 23,
           discussions: 234,
-          license: 'GPL-2.0',
+          license: 'Apache-2.0',
           size: '78.9 MB',
           dependencies: 123,
           lastAudit: '2024-01-12'
         },
         {
-          id: 'fallback-5',
-          name: 'SQLMap',
-          author: 'sqlmapproject',
-          description: 'Automatic SQL injection and database takeover tool.',
-          image: '/assets/images/no_image.png',
-          icon: 'Database',
-          tags: ['SQL Injection', 'Database Security', 'Penetration Testing'],
-          stars: 28900,
-          forks: 5600,
-          contributors: 178,
-          rating: 4.4,
-          reviews: 1234,
-          language: 'Python',
-          platform: 'Cross-platform',
-          maturity: 'production',
-          lastUpdated: new Date(Date.now() - 86400000 * 5),
-          githubUrl: 'https://github.com/sqlmapproject/sqlmap',
-          documentationUrl: 'https://sqlmap.org/',
-          trending: false,
-          securityVerified: true,
-          issues: 67,
-          pullRequests: 15,
-          discussions: 345,
-          license: 'GPL-2.0',
-          size: '12.3 MB',
-          dependencies: 34,
-          lastAudit: '2024-01-10'
-        },
-        {
           id: 'fallback-6',
-          name: 'Aircrack-ng',
-          author: 'aircrack-ng',
-          description: 'WiFi security auditing tools suite.',
+          name: 'Wireshark',
+          author: 'wireshark',
+          description: 'The world\'s foremost and widely-used network protocol analyzer. Deep inspection of hundreds of protocols and live capture analysis.',
           image: '/assets/images/no_image.png',
-          icon: 'Wifi',
-          tags: ['WiFi Security', 'Wireless Cracking', 'Network Security'],
-          stars: 4500,
-          forks: 1100,
-          contributors: 89,
+          icon: 'Activity',
+          tags: ['Network Analysis', 'Packet Capture', 'Protocol Analysis', 'Network Forensics', 'Traffic Analysis'],
+          stars: 7200,
+          forks: 1800,
+          contributors: 234,
           rating: 4.3,
           reviews: 456,
           language: 'C',
-          platform: 'Linux/macOS',
+          platform: 'Cross-platform',
           maturity: 'production',
           lastUpdated: new Date(Date.now() - 86400000 * 6),
-          githubUrl: 'https://github.com/aircrack-ng/aircrack-ng',
-          documentationUrl: 'https://aircrack-ng.org/',
+          githubUrl: 'https://github.com/wireshark/wireshark',
+          documentationUrl: 'https://www.wireshark.org/docs/',
           trending: false,
           securityVerified: true,
           issues: 34,

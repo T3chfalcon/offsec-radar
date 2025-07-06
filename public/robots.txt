@@ -1,3 +1,28 @@
 # https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+
+# Sitemap
+Sitemap: https://offsecradar.com/sitemap.xml
+
+# Optimize crawling
+Crawl-delay: 1
+
+# Allow all important pages
+Allow: /tool-arsenal-discovery
+Allow: /about-git-hub-radar
+Allow: /intelligence-dashboard-homepage
+
+# Disallow any admin or private areas (if they exist)
+Disallow: /admin/
+Disallow: /private/
+Disallow: /.env
+Disallow: /config/
+
+# Allow assets and static files
+Allow: /assets/
+Allow: /public/
+Allow: /static/
+
+# Host
+Host: offsecradar.com

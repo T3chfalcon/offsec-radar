@@ -141,13 +141,53 @@ const IntelligenceDashboardHomepage = () => {
   return (
     <>
       <Helmet>
-        <title>OffSec Radar - Open Source Security Tool Discovery</title>
-        <meta name="description" content="Discover security tools from GitHub's ecosystem. Open-source platform for cybersecurity professionals." />
-        <meta name="keywords" content="cybersecurity tools, red team, blue team, OSINT, malware research, GitHub security, open source" />
-        <meta property="og:title" content="OffSec Radar - Security Tool Discovery" />
-        <meta property="og:description" content="Discover the security tools that matter. Open-source platform powered by GitHub." />
+        <title>OffSec Radar - Open Source Security Tool Discovery Platform</title>
+        <meta name="description" content="Discover the best open-source security tools from GitHub's ecosystem. Professional cybersecurity tool discovery platform for penetration testers, red team operators, blue team defenders, and security researchers. Find vulnerability scanners, penetration testing frameworks, OSINT tools, and more." />
+        <meta name="keywords" content="cybersecurity tools, penetration testing, red team tools, blue team tools, OSINT, malware analysis, vulnerability assessment, GitHub security, open source security, security research, ethical hacking tools" />
+        
+        <!-- Enhanced Open Graph -->
+        <meta property="og:title" content="OffSec Radar - Professional Security Tool Discovery Platform" />
+        <meta property="og:description" content="Discover the security tools that matter. Professional cybersecurity tool discovery platform powered by GitHub's ecosystem. Find the best penetration testing tools, vulnerability scanners, and security frameworks." />
         <meta property="og:type" content="website" />
-        <link rel="canonical" href="/" />
+        <meta property="og:url" content="https://offsecradar.com/" />
+        <meta property="og:image" content="https://offsecradar.com/assets/images/offsec-radar-homepage.png" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="OffSec Radar - Security Tool Discovery Platform Dashboard" />
+        <meta property="og:site_name" content="OffSec Radar" />
+        <meta property="og:locale" content="en_US" />
+        
+        <!-- Enhanced Twitter Cards -->
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:site" content="@OffsecRadar" />
+        <meta name="twitter:creator" content="@OffsecRadar" />
+        <meta name="twitter:title" content="OffSec Radar - Professional Security Tool Discovery" />
+        <meta name="twitter:description" content="Discover the best open-source security tools from GitHub. Professional platform for cybersecurity professionals." />
+        <meta name="twitter:image" content="https://offsecradar.com/assets/images/offsec-radar-homepage.png" />
+        <meta name="twitter:image:alt" content="OffSec Radar Dashboard showing trending security tools" />
+        
+        <!-- Additional SEO -->
+        <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+        <meta name="googlebot" content="index, follow" />
+        <link rel="canonical" href="https://offsecradar.com/" />
+        
+        <!-- Structured Data -->
+        <script type="application/ld+json">
+          {`
+            {
+              "@context": "https://schema.org",
+              "@type": "WebSite",
+              "name": "OffSec Radar",
+              "description": "Professional cybersecurity tool discovery platform",
+              "url": "https://offsecradar.com/",
+              "potentialAction": {
+                "@type": "SearchAction",
+                "target": "https://offsecradar.com/tool-arsenal-discovery?search={search_term_string}",
+                "query-input": "required name=search_term_string"
+              }
+            }
+          `}
+        </script>
       </Helmet>
 
       <div className="min-h-screen bg-background">
