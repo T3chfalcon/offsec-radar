@@ -2,18 +2,10 @@ import React, { useState } from 'react';
 import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
 
-const ToolCard = ({ tool, onBookmark, onShare, onCompare, isBookmarked, isSelected, onSelect }) => {
+const ToolCard = ({ tool, onShare, onCompare, isSelected, onSelect }) => {
   const [imageError, setImageError] = useState(false);
 
-  const getMaturityColor = (maturity) => {
-    switch (maturity) {
-      case 'alpha': return 'text-warning bg-warning/10 border-warning/20';
-      case 'beta': return 'text-conversion bg-conversion/10 border-conversion/20';
-      case 'production': return 'text-success bg-success/10 border-success/20';
-      case 'deprecated': return 'text-error bg-error/10 border-error/20';
-      default: return 'text-primary-600 bg-primary/10 border-primary/20';
-    }
-  };
+
 
   const formatNumber = (num) => {
     if (num >= 1000000) {
@@ -222,26 +214,8 @@ const ToolCard = ({ tool, onBookmark, onShare, onCompare, isBookmarked, isSelect
           </div>
         </div>
 
-        {/* Rating & Last Updated */}
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center space-x-2">
-            <div className="flex items-center space-x-1">
-              {[...Array(5)].map((_, i) => (
-                <Icon
-                  key={i}
-                  name="Star"
-                  size={14}
-                  className={i < Math.floor(tool.rating) ? 'text-yellow-500 fill-current' : 'text-gray-300'}
-                />
-              ))}
-            </div>
-            <span className="text-sm font-medium text-gray-700">
-              {tool.rating.toFixed(1)}
-            </span>
-            <span className="text-xs text-gray-500">
-              ({tool.reviews} reviews)
-            </span>
-          </div>
+        {/* Last Updated */}
+        <div className="flex items-center justify-end mb-4">
           <div className="text-xs text-gray-500">
             {getTimeAgo(tool.lastUpdated)}
           </div>
@@ -261,17 +235,6 @@ const ToolCard = ({ tool, onBookmark, onShare, onCompare, isBookmarked, isSelect
 
         {/* Action Buttons */}
         <div className="flex items-center space-x-2">
-          <Button
-            variant={isBookmarked ? "primary" : "outline"}
-            size="sm"
-            onClick={() => onBookmark(tool.id)}
-            iconName={isBookmarked ? "Heart" : "HeartHandshake"}
-            iconSize={16}
-            className="flex-1"
-          >
-            {isBookmarked ? 'Saved' : 'Save'}
-          </Button>
-          
           <Button
             variant="ghost"
             size="sm"

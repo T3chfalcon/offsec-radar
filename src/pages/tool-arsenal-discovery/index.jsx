@@ -23,7 +23,6 @@ const ToolArsenalDiscovery = () => {
   const [viewMode, setViewMode] = useState('grid');
   const [sortBy, setSortBy] = useState('relevance');
   const [selectedTools, setSelectedTools] = useState([]);
-  const [bookmarkedTools, setBookmarkedTools] = useState([]);
   const [isFilterSidebarOpen, setIsFilterSidebarOpen] = useState(false);
   const [isComparisonModalOpen, setIsComparisonModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
@@ -169,8 +168,7 @@ const ToolArsenalDiscovery = () => {
           return new Date(b.lastUpdated) - new Date(a.lastUpdated);
         case 'name':
           return a.name.localeCompare(b.name);
-        case 'rating':
-          return b.rating - a.rating;
+
         case 'trending':
           if (a.trending && !b.trending) return -1;
           if (!a.trending && b.trending) return 1;
@@ -230,13 +228,7 @@ const ToolArsenalDiscovery = () => {
     setCurrentPage(1);
   };
 
-  const handleBookmark = (toolId) => {
-    setBookmarkedTools(prev => 
-      prev.includes(toolId) 
-        ? prev.filter(id => id !== toolId)
-        : [...prev, toolId]
-    );
-  };
+
 
   const handleShare = (tool) => {
     if (navigator.share) {
@@ -365,9 +357,7 @@ const ToolArsenalDiscovery = () => {
                           <ToolCard
                             key={tool.id}
                             tool={tool}
-                            isBookmarked={bookmarkedTools.includes(tool.id)}
                             isSelected={selectedTools.includes(tool.id)}
-                            onBookmark={() => handleBookmark(tool.id)}
                             onShare={() => handleShare(tool)}
                             onSelect={(checked) => handleSelectTool(tool.id, checked)}
                           />
@@ -379,9 +369,7 @@ const ToolArsenalDiscovery = () => {
                         selectedTools={selectedTools}
                         onSelectTool={handleSelectTool}
                         onSelectAll={handleSelectAll}
-                        onBookmark={handleBookmark}
                         onShare={handleShare}
-                        bookmarkedTools={bookmarkedTools}
                       />
                     )}
 

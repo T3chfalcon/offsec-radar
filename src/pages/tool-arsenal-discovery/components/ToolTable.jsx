@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
 
-const ToolTable = ({ tools, onBookmark, onShare, onCompare, bookmarkedTools, selectedTools, onSelectTool, onSelectAll }) => {
+const ToolTable = ({ tools, onShare, onCompare, selectedTools, onSelectTool, onSelectAll }) => {
   const [sortConfig, setSortConfig] = useState({ key: 'stars', direction: 'desc' });
 
   const handleSort = (key) => {
@@ -47,15 +47,7 @@ const ToolTable = ({ tools, onBookmark, onShare, onCompare, bookmarkedTools, sel
     return `${Math.ceil(diffDays / 30)}m`;
   };
 
-  const getMaturityColor = (maturity) => {
-    switch (maturity) {
-      case 'alpha': return 'text-warning bg-warning/10';
-      case 'beta': return 'text-conversion bg-conversion/10';
-      case 'production': return 'text-success bg-success/10';
-      case 'deprecated': return 'text-error bg-error/10';
-      default: return 'text-primary-600 bg-primary/10';
-    }
-  };
+
 
   const SortableHeader = ({ label, sortKey, className = "" }) => (
     <th 
@@ -103,15 +95,6 @@ const ToolTable = ({ tools, onBookmark, onShare, onCompare, bookmarkedTools, sel
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => selectedTools.forEach(id => onBookmark(id))}
-                iconName="Bookmark"
-                iconSize={16}
-              >
-                Bookmark Selected
-              </Button>
-              <Button
-                variant="outline"
-                size="sm"
                 onClick={() => onCompare(selectedTools)}
                 iconName="GitCompare"
                 iconSize={16}
@@ -143,12 +126,8 @@ const ToolTable = ({ tools, onBookmark, onShare, onCompare, bookmarkedTools, sel
               <SortableHeader label="Tool" sortKey="name" className="min-w-[300px]" />
               <SortableHeader label="Stars" sortKey="stars" />
               <SortableHeader label="Forks" sortKey="forks" />
-              <SortableHeader label="Rating" sortKey="rating" />
               <SortableHeader label="Language" sortKey="language" />
               <SortableHeader label="Updated" sortKey="lastUpdated" />
-              <th className="px-6 py-4 text-left text-xs font-semibold text-primary-700 uppercase tracking-wider">
-                Status
-              </th>
               <th className="px-6 py-4 text-left text-xs font-semibold text-primary-700 uppercase tracking-wider">
                 Actions
               </th>
@@ -223,25 +202,6 @@ const ToolTable = ({ tools, onBookmark, onShare, onCompare, bookmarkedTools, sel
                   </div>
                 </td>
 
-                {/* Rating */}
-                <td className="px-6 py-4">
-                  <div className="flex items-center space-x-1">
-                    <div className="flex items-center">
-                      {[...Array(5)].map((_, i) => (
-                        <Icon
-                          key={i}
-                          name="Star"
-                          size={12}
-                          className={i < Math.floor(tool.rating) ? 'text-conversion fill-current' : 'text-primary-300'}
-                        />
-                      ))}
-                    </div>
-                    <span className="text-sm text-primary-700 ml-1">
-                      {tool.rating.toFixed(1)}
-                    </span>
-                  </div>
-                </td>
-
                 {/* Language */}
                 <td className="px-6 py-4">
                   <div className="flex items-center space-x-2">
@@ -255,24 +215,9 @@ const ToolTable = ({ tools, onBookmark, onShare, onCompare, bookmarkedTools, sel
                   {getTimeAgo(tool.lastUpdated)}
                 </td>
 
-                {/* Status */}
-                <td className="px-6 py-4">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getMaturityColor(tool.maturity)}`}>
-                    {tool.maturity}
-                  </span>
-                </td>
-
                 {/* Actions */}
                 <td className="px-6 py-4">
                   <div className="flex items-center space-x-2">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => onBookmark(tool.id)}
-                      iconName={bookmarkedTools.includes(tool.id) ? "BookmarkCheck" : "Bookmark"}
-                      iconSize={16}
-                      className="px-2"
-                    />
                     <Button
                       variant="ghost"
                       size="sm"
