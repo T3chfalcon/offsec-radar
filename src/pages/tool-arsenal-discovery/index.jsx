@@ -272,7 +272,7 @@ const ToolArsenalDiscovery = () => {
         <meta name="description" content="Discover and explore the best open-source security tools from GitHub. Filter by category, language, and features. Find penetration testing frameworks, vulnerability scanners, OSINT tools, malware analysis tools, and more. Professional cybersecurity tool discovery platform." />
         <meta name="keywords" content="security tools discovery, GitHub security tools, penetration testing tools, vulnerability scanners, OSINT tools, malware analysis, red team tools, blue team tools, cybersecurity frameworks, security research tools" />
         
-        <!-- Enhanced Open Graph -->
+        {/* Enhanced Open Graph */}
         <meta property="og:title" content="Security Tool Discovery - OffSec Radar" />
         <meta property="og:description" content="Discover and explore the best open-source security tools from GitHub's ecosystem. Filter by category, language, and features. Professional cybersecurity tool discovery platform." />
         <meta property="og:type" content="website" />
@@ -284,7 +284,7 @@ const ToolArsenalDiscovery = () => {
         <meta property="og:site_name" content="OffSec Radar" />
         <meta property="og:locale" content="en_US" />
         
-        <!-- Enhanced Twitter Cards -->
+        {/* Enhanced Twitter Cards */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@OffsecRadar" />
         <meta name="twitter:creator" content="@OffsecRadar" />
@@ -293,12 +293,12 @@ const ToolArsenalDiscovery = () => {
         <meta name="twitter:image" content="https://offsecradar.com/assets/images/offsec-radar-tools.png" />
         <meta name="twitter:image:alt" content="Security tools discovery interface showing filtering options" />
         
-        <!-- Additional SEO -->
+        {/* Additional SEO */}
         <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
         <meta name="googlebot" content="index, follow" />
         <link rel="canonical" href="https://offsecradar.com/tool-arsenal-discovery" />
         
-        <!-- Structured Data -->
+        {/* Structured Data */}
         <script type="application/ld+json">
           {`
             {

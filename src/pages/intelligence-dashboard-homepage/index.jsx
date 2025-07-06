@@ -145,7 +145,7 @@ const IntelligenceDashboardHomepage = () => {
         <meta name="description" content="Discover the best open-source security tools from GitHub's ecosystem. Professional cybersecurity tool discovery platform for penetration testers, red team operators, blue team defenders, and security researchers. Find vulnerability scanners, penetration testing frameworks, OSINT tools, and more." />
         <meta name="keywords" content="cybersecurity tools, penetration testing, red team tools, blue team tools, OSINT, malware analysis, vulnerability assessment, GitHub security, open source security, security research, ethical hacking tools" />
         
-        <!-- Enhanced Open Graph -->
+        {/* Enhanced Open Graph */}
         <meta property="og:title" content="OffSec Radar - Professional Security Tool Discovery Platform" />
         <meta property="og:description" content="Discover the security tools that matter. Professional cybersecurity tool discovery platform powered by GitHub's ecosystem. Find the best penetration testing tools, vulnerability scanners, and security frameworks." />
         <meta property="og:type" content="website" />
@@ -157,7 +157,7 @@ const IntelligenceDashboardHomepage = () => {
         <meta property="og:site_name" content="OffSec Radar" />
         <meta property="og:locale" content="en_US" />
         
-        <!-- Enhanced Twitter Cards -->
+        {/* Enhanced Twitter Cards */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@OffsecRadar" />
         <meta name="twitter:creator" content="@OffsecRadar" />
@@ -166,12 +166,12 @@ const IntelligenceDashboardHomepage = () => {
         <meta name="twitter:image" content="https://offsecradar.com/assets/images/offsec-radar-homepage.png" />
         <meta name="twitter:image:alt" content="OffSec Radar Dashboard showing trending security tools" />
         
-        <!-- Additional SEO -->
+        {/* Additional SEO */}
         <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
         <meta name="googlebot" content="index, follow" />
         <link rel="canonical" href="https://offsecradar.com/" />
         
-        <!-- Structured Data -->
+        {/* Structured Data */}
         <script type="application/ld+json">
           {`
             {

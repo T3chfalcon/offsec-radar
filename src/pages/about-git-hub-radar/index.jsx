@@ -21,7 +21,7 @@ const AboutGitHubRadar = () => {
         />
         <meta name="keywords" content="OffSec Radar, cybersecurity platform, security tool discovery, GitHub security tools, penetration testing, red team tools, blue team tools, OSINT, security research, open source security, community-driven security" />
         
-        <!-- Enhanced Open Graph -->
+        {/* Enhanced Open Graph */}
         <meta property="og:title" content="About OffSec Radar - Professional Security Tool Discovery Platform" />
         <meta property="og:description" content="Discover how OffSec Radar is revolutionizing cybersecurity tool discovery with community-driven insights, expert curation, and GitHub integration. Professional platform trusted by security professionals worldwide." />
         <meta property="og:type" content="website" />
@@ -33,7 +33,7 @@ const AboutGitHubRadar = () => {
         <meta property="og:site_name" content="OffSec Radar" />
         <meta property="og:locale" content="en_US" />
         
-        <!-- Enhanced Twitter Cards -->
+        {/* Enhanced Twitter Cards */}
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@OffsecRadar" />
         <meta name="twitter:creator" content="@OffsecRadar" />
@@ -42,12 +42,12 @@ const AboutGitHubRadar = () => {
         <meta name="twitter:image" content="https://offsecradar.com/assets/images/offsec-radar-about.png" />
         <meta name="twitter:image:alt" content="OffSec Radar team and mission overview" />
         
-        <!-- Additional SEO -->
+        {/* Additional SEO */}
         <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
         <meta name="googlebot" content="index, follow" />
         <link rel="canonical" href="https://offsecradar.com/about-git-hub-radar" />
         
-        <!-- Structured Data -->
+        {/* Structured Data */}
         <script type="application/ld+json">
           {`
             {
