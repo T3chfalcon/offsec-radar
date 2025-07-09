@@ -106,7 +106,7 @@ const FooterSection = () => {
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-2 text-primary-foreground/60 text-sm">
                 <Icon name="Heart" size={14} />
-                <span>Made with ❤️ by <a href="https://x.com/t3chfalcon" target="_blank" rel="noopener noreferrer" className="text-accent hover:text-accent/80">x.com/@t3chfalcon</a> for the community</span>
+                <span>Made with ❤️ by <a href="https://t3chfalcon.vercel.app" target="_blank" rel="noopener noreferrer" className="text-accent hover:text-accent/80">t3chfalcon</a> for the community</span>
               </div>
             </div>
           </div>

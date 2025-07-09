@@ -217,6 +217,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Made with ❤️ by [x.com/@t3chfalcon](https://x.com/t3chfalcon) for the community**
+**Made with ❤️ by [t3chfalcon](https://t3chfalcon.vercel.app) for the community**
 
 **[🚀 Live Demo](https://offsec-radar.vercel.app)** | **[📱 GitHub](https://github.com/T3chfalcon/offsec-radar)**
