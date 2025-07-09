@@ -130,7 +130,7 @@ offsec-radar/
 │   ├── pages/            # Page components and routing
 │   │   ├── tool-arsenal-discovery/  # Main tools page
 │   │   ├── intelligence-dashboard-homepage/  # Homepage
-│   │   └── about-git-hub-radar/     # About page
+│   │   └── about/                   # About page
 │   ├── data/             # Curated tools database and categories
 │   ├── services/         # GitHub API integration
 │   └── styles/           # Tailwind CSS configuration
@@ -217,6 +217,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Made with ❤️ by [t3chfalcon](https://t3chfalcon.vercel.app) for the community**
+**Made with ❤️ by [T3chfalcon](https://t3chfalcon.vercel.app) for the community**
 
 **[🚀 Live Demo](https://offsec-radar.vercel.app)** | **[📱 GitHub](https://github.com/T3chfalcon/offsec-radar)**

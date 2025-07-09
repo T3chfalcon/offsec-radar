@@ -25,11 +25,11 @@ const AboutGitHubRadar = () => {
         <meta property="og:title" content="About OffSec Radar - Professional Security Tool Discovery Platform" />
         <meta property="og:description" content="Discover how OffSec Radar is revolutionizing cybersecurity tool discovery with community-driven insights, expert curation, and GitHub integration. Professional platform trusted by security professionals worldwide." />
         <meta property="og:type" content="website" />
-        <meta property="og:url" content="https://offsecradar.com/about-git-hub-radar" />
-        <meta property="og:image" content="https://offsecradar.com/assets/images/offsec-radar-about.png" />
+        <meta property="og:url" content="https://offsecradar.com/about" />
+        <meta property="og:image" content="https://offsecradar.com/assets/images/offsec-radar-social.png" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="OffSec Radar About Page showing mission and team" />
+        <meta property="og:image:alt" content="OffSec Radar About Page showing platform information" />
         <meta property="og:site_name" content="OffSec Radar" />
         <meta property="og:locale" content="en_US" />
         
@@ -37,15 +37,15 @@ const AboutGitHubRadar = () => {
         <meta name="twitter:card" content="summary_large_image" />
         <meta name="twitter:site" content="@t3chfalcon" />
         <meta name="twitter:creator" content="@t3chfalcon" />
-        <meta name="twitter:title" content="About OffSec Radar - Professional Security Tool Discovery" />
-        <meta name="twitter:description" content="Learn about our mission to revolutionize cybersecurity tool discovery through community collaboration and GitHub integration." />
-        <meta name="twitter:image" content="https://offsecradar.com/assets/images/offsec-radar-about.png" />
-        <meta name="twitter:image:alt" content="OffSec Radar team and mission overview" />
+        <meta name="twitter:title" content="About OffSec Radar - Open Source Security Tool Discovery" />
+        <meta name="twitter:description" content="Learn about OffSec Radar, the open-source platform for discovering security tools from GitHub's ecosystem." />
+        <meta name="twitter:image" content="https://offsecradar.com/assets/images/offsec-radar-social.png" />
+        <meta name="twitter:image:alt" content="OffSec Radar platform showcasing security tool discovery features" />
         
         {/* Additional SEO */}
         <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
         <meta name="googlebot" content="index, follow" />
-        <link rel="canonical" href="https://offsecradar.com/about-git-hub-radar" />
+        <link rel="canonical" href="https://offsecradar.com/about" />
         
         {/* Schema.org Structured Data */}
         <script type="application/ld+json">

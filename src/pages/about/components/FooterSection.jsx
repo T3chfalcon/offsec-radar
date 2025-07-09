@@ -10,7 +10,7 @@ const FooterSection = () => {
       { name: 'Tool Discovery', href: '/tool-arsenal-discovery' }
     ],
     community: [
-      { name: 'About Us', href: '/about-git-hub-radar' }
+      { name: 'About Us', href: '/about' }
     ]
   };
 

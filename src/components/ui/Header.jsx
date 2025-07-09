@@ -21,7 +21,7 @@ const Header = () => {
     },
     {
       name: 'About',
-      path: '/about-git-hub-radar',
+      path: '/about',
       icon: 'Info'
     }
   ];
