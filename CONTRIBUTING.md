@@ -185,11 +185,13 @@ We use labels to categorize issues and pull requests:
 - `question`: Further information is requested
 - `wontfix`: This will not be worked on
 
-## 📞 Getting Help
+## 📞 Contact
 
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/offsec-radar/discussions)
-- **Issues**: [GitHub Issues](https://github.com/yourusername/offsec-radar/issues)
-- **Discord**: [Join our Discord](https://discord.gg/offsec-radar)
+Have questions about contributing? Reach out through:
+
+- **GitHub Issues**: [Create an issue](https://github.com/T3chfalcon/offsec-radar/issues)
+- **Twitter**: [@t3chfalcon](https://x.com/t3chfalcon)
+- **Email**: [contact@offsecradar.com](mailto:contact@offsecradar.com)
 
 ## 🙏 Recognition
 

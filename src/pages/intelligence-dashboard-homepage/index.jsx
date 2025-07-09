@@ -159,8 +159,8 @@ const IntelligenceDashboardHomepage = () => {
         
         {/* Enhanced Twitter Cards */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content="@OffsecRadar" />
-        <meta name="twitter:creator" content="@OffsecRadar" />
+        <meta name="twitter:site" content="@t3chfalcon" />
+        <meta name="twitter:creator" content="@t3chfalcon" />
         <meta name="twitter:title" content="OffSec Radar - Professional Security Tool Discovery" />
         <meta name="twitter:description" content="Discover the best open-source security tools from GitHub. Professional platform for cybersecurity professionals." />
         <meta name="twitter:image" content="https://offsecradar.com/assets/images/offsec-radar-homepage.png" />

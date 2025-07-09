@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
+import AppImage from '../../../components/AppImage';
 
-const ToolCard = ({ tool, onShare, onCompare, isSelected, onSelect }) => {
+const ToolCard = ({ tool, onShare }) => {
   const [imageError, setImageError] = useState(false);
 
 
@@ -17,16 +18,7 @@ const ToolCard = ({ tool, onShare, onCompare, isSelected, onSelect }) => {
     return num.toString();
   };
 
-  const getTimeAgo = (date) => {
-    const now = new Date();
-    const diffTime = Math.abs(now - new Date(date));
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 1) return '1 day ago';
-    if (diffDays < 7) return `${diffDays} days ago`;
-    if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
-    return `${Math.ceil(diffDays / 30)} months ago`;
-  };
+
 
   const getCategoryColor = (category) => {
     const colors = {
@@ -67,84 +59,103 @@ const ToolCard = ({ tool, onShare, onCompare, isSelected, onSelect }) => {
     }
   };
 
+  // Get appropriate icon based on tool name, description, or tags
+  const getToolIcon = (tool) => {
+    const name = tool.name.toLowerCase();
+    const description = tool.description.toLowerCase();
+    const tags = tool.tags?.map(tag => tag.toLowerCase()).join(' ') || '';
+    
+    // Specific tool icons
+    if (name.includes('metasploit')) return 'Crosshair';
+    if (name.includes('sqlmap') || name.includes('sql')) return 'Database';
+    if (name.includes('nmap') || name.includes('scan')) return 'Radar';
+    if (name.includes('burp') || name.includes('proxy')) return 'Globe';
+    if (name.includes('zap') || name.includes('owasp')) return 'Shield';
+    if (name.includes('wireshark') || name.includes('packet')) return 'Activity';
+    if (name.includes('hydra') || name.includes('crack') || name.includes('brute')) return 'Key';
+    if (name.includes('aircrack') || name.includes('wireless') || name.includes('wifi')) return 'Wifi';
+    if (name.includes('hashcat') || name.includes('hash')) return 'Hash';
+    if (name.includes('john') || name.includes('password')) return 'Lock';
+    if (name.includes('gobuster') || name.includes('dirb') || name.includes('directory')) return 'FolderSearch';
+    if (name.includes('nuclei') || name.includes('template')) return 'Zap';
+    if (name.includes('subfinder') || name.includes('subdomain')) return 'Compass';
+    if (name.includes('amass') || name.includes('recon')) return 'Search';
+    if (name.includes('ffuf') || name.includes('fuzz')) return 'Target';
+    
+    // Category-based icons from tags and description
+    if (tags.includes('vulnerability') || description.includes('vulnerability')) return 'AlertTriangle';
+    if (tags.includes('network') || description.includes('network')) return 'Network';
+    if (tags.includes('web') || description.includes('web')) return 'Globe';
+    if (tags.includes('forensics') || description.includes('forensics')) return 'FileSearch';
+    if (tags.includes('malware') || description.includes('malware')) return 'Bug';
+    if (tags.includes('exploitation') || description.includes('exploit')) return 'Crosshair';
+    if (tags.includes('reconnaissance') || tags.includes('osint')) return 'Search';
+    if (tags.includes('enumeration') || description.includes('enumeration')) return 'List';
+    if (tags.includes('scanning') || description.includes('scanner')) return 'Radar';
+    if (tags.includes('testing') || description.includes('testing')) return 'TestTube';
+    if (tags.includes('monitoring') || description.includes('monitoring')) return 'Eye';
+    if (tags.includes('analysis') || description.includes('analysis')) return 'BarChart3';
+    if (tags.includes('reverse') || description.includes('reverse')) return 'RotateCcw';
+    if (tags.includes('crypto') || description.includes('crypto')) return 'Shield';
+    if (tags.includes('mobile') || description.includes('mobile')) return 'Smartphone';
+    if (tags.includes('cloud') || description.includes('cloud')) return 'Cloud';
+    
+    // Default security icon
+    return 'Shield';
+  };
+
+  const toolIcon = getToolIcon(tool);
+
+  // Generate unique gradient colors based on tool name
+  const getGradientColors = (toolName) => {
+    const hash = toolName.split('').reduce((a, b) => {
+      a = ((a << 5) - a) + b.charCodeAt(0);
+      return a & a;
+    }, 0);
+    
+    const colors = [
+      ['from-blue-500', 'to-blue-600'],
+      ['from-green-500', 'to-green-600'],
+      ['from-purple-500', 'to-purple-600'],
+      ['from-red-500', 'to-red-600'],
+      ['from-yellow-500', 'to-yellow-600'],
+      ['from-indigo-500', 'to-indigo-600'],
+      ['from-pink-500', 'to-pink-600'],
+      ['from-cyan-500', 'to-cyan-600'],
+      ['from-orange-500', 'to-orange-600'],
+      ['from-teal-500', 'to-teal-600']
+    ];
+    
+    return colors[Math.abs(hash) % colors.length];
+  };
+
+  const [gradientFrom, gradientTo] = getGradientColors(tool.name);
+
   return (
-    <div className={`
-      group relative bg-white rounded-2xl border-2 transition-all duration-300 hover:shadow-xl hover:-translate-y-1
-      ${isSelected ? 'border-accent shadow-lg ring-4 ring-accent/20' : 'border-gray-200 hover:border-accent/50'}
-    `}>
-      {/* Selection Checkbox */}
-      <div className="absolute top-4 left-4 z-10">
-        <input
-          type="checkbox"
-          checked={isSelected}
-          onChange={(e) => onSelect(tool.id, e.target.checked)}
-          className="w-5 h-5 text-accent bg-white border-2 border-gray-300 rounded-md focus:ring-accent focus:ring-2 transition-all duration-200"
+    <div className="group relative bg-white rounded-2xl border-2 border-gray-200 hover:border-accent/50 transition-all duration-300 hover:shadow-xl hover:-translate-y-1">
+
+      {/* Tool Image */}
+      <div className="relative h-32 bg-gradient-to-br from-gray-50 to-gray-100 rounded-t-2xl">
+        <AppImage
+          src={tool.image}
+          alt={`${tool.name} logo`}
+          toolName={tool.name}
+          generateOfficialImage={true}
+          fallbackIcon={tool.icon || "Shield"}
+          className="w-full h-full object-cover rounded-t-2xl"
         />
-      </div>
-
-      {/* Trending Badge */}
-      {tool.trending && (
-        <div className="absolute top-4 right-4 z-10">
-          <div className="flex items-center space-x-1 bg-gradient-to-r from-accent to-accent/80 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-lg">
-            <Icon name="TrendingUp" size={12} />
-            <span>Trending</span>
-          </div>
-        </div>
-      )}
-
-      {/* Tool Image/Icon */}
-      <div className="relative h-48 overflow-hidden rounded-t-2xl bg-gradient-to-br from-gray-50 to-gray-100">
-        {tool.image && !imageError ? (
-          <img
-            src={tool.image}
-            alt={tool.name}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-            onError={handleImageError}
-            loading="lazy"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <div className={`w-20 h-20 ${getCategoryColor(tool.category)} rounded-2xl flex items-center justify-center shadow-lg`}>
-              <Icon name={tool.icon || "Shield"} size={36} className="text-white" />
+        
+        {/* Trending Badge */}
+        {tool.trending && (
+          <div className="absolute top-3 right-3">
+            <div className="bg-accent text-white px-3 py-1 rounded-full text-xs font-semibold flex items-center space-x-1 shadow-lg">
+              <Icon name="TrendingUp" size={12} />
+              <span>Trending</span>
             </div>
           </div>
         )}
-        
-        {/* Category Badge */}
-        <div className="absolute bottom-4 left-4">
-          <div className={`flex items-center space-x-2 ${getCategoryColor(tool.category)} text-white px-3 py-1 rounded-full text-xs font-medium shadow-lg`}>
-            <Icon name={tool.icon || "Shield"} size={12} />
-            <span>{tool.category}</span>
-          </div>
-        </div>
 
-        {/* Quick Actions Overlay */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-          <div className="flex space-x-2">
-            <Button
-              variant="primary"
-              size="sm"
-              onClick={handleViewGitHub}
-              iconName="Github"
-              iconSize={16}
-              className="bg-white/90 text-gray-900 hover:bg-white shadow-lg"
-            >
-              GitHub
-            </Button>
-            {tool.websiteUrl && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleVisitSite}
-                iconName="ExternalLink"
-                iconSize={16}
-                className="bg-white/90 border-white/90 text-gray-900 hover:bg-white shadow-lg"
-              >
-                Visit
-              </Button>
-            )}
-          </div>
-        </div>
+
       </div>
 
       {/* Tool Content */}
@@ -214,12 +225,7 @@ const ToolCard = ({ tool, onShare, onCompare, isSelected, onSelect }) => {
           </div>
         </div>
 
-        {/* Last Updated */}
-        <div className="flex items-center justify-end mb-4">
-          <div className="text-xs text-gray-500">
-            {getTimeAgo(tool.lastUpdated)}
-          </div>
-        </div>
+
 
         {/* Language & Platform */}
         <div className="flex items-center justify-between mb-6 text-sm">
@@ -235,28 +241,34 @@ const ToolCard = ({ tool, onShare, onCompare, isSelected, onSelect }) => {
 
         {/* Action Buttons */}
         <div className="flex items-center space-x-2">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => onShare(tool)}
-            iconName="Share2"
-            iconSize={16}
-            className="px-3 hover:bg-gray-100"
-            title="Share tool"
-          />
-          
-          {tool.websiteUrl && (
+          {/* Primary Action: Website or GitHub */}
+          {tool.websiteUrl ? (
             <Button
-              variant="ghost"
+              variant="primary"
               size="sm"
               onClick={handleVisitSite}
               iconName="ExternalLink"
               iconSize={16}
-              className="px-3 hover:bg-gray-100"
+              className="flex-1"
               title="Visit website"
-            />
+            >
+              Visit Site
+            </Button>
+          ) : (
+            <Button
+              variant="primary"
+              size="sm"
+              onClick={handleViewGitHub}
+              iconName="Github"
+              iconSize={16}
+              className="flex-1"
+              title="View on GitHub"
+            >
+              View on GitHub
+            </Button>
           )}
           
+          {/* Secondary Actions */}
           {tool.documentationUrl && (
             <Button
               variant="ghost"
@@ -268,6 +280,16 @@ const ToolCard = ({ tool, onShare, onCompare, isSelected, onSelect }) => {
               title="View documentation"
             />
           )}
+          
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onShare(tool)}
+            iconName="Share2"
+            iconSize={16}
+            className="px-3 hover:bg-gray-100"
+            title="Share tool"
+          />
         </div>
       </div>
     </div>

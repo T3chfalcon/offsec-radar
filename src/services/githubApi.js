@@ -1,64 +1,79 @@
-// GitHub API service for OffSec Radar
-// This service handles all GitHub API interactions
-
-const GITHUB_API_BASE = 'https://api.github.com';
-const GITHUB_TOKEN = import.meta.env.VITE_GITHUB_API_TOKEN || '';
+// Enhanced GitHub API Service for security tool discovery
+// Uses public GitHub API (60 requests per hour limit)
 
 class GitHubApiService {
   constructor() {
-    this.baseUrl = GITHUB_API_BASE;
+    this.baseUrl = 'https://api.github.com';
     this.headers = {
       'Accept': 'application/vnd.github.v3+json',
-      'Content-Type': 'application/json',
+      'User-Agent': 'OffSecRadar/1.0',
     };
+  }
 
-    if (GITHUB_TOKEN) {
-      this.headers['Authorization'] = `token ${GITHUB_TOKEN}`;
+  // Search for security tools on GitHub with optimized public API usage
+  async searchSecurityTools(query = '', filters = {}) {
+    const searchQuery = this.buildSearchQuery(query, filters);
+    const apiUrl = `${this.baseUrl}/search/repositories?q=${searchQuery}&sort=stars&order=desc&per_page=100`;
+    
+    try {
+      console.log('🔍 Searching GitHub with public API...');
+      console.log('📡 API URL:', apiUrl);
+      console.log('📋 Headers:', this.headers);
+      
+      const response = await fetch(apiUrl, {
+        method: 'GET',
+        headers: this.headers,
+        mode: 'cors'
+      });
+
+      console.log('📊 Response status:', response.status);
+      console.log('📊 Response ok:', response.ok);
+
+      if (!response.ok) {
+        if (response.status === 403) {
+          console.warn('⚠️ GitHub API rate limit exceeded. Using local database.');
+          throw new Error('Rate limit exceeded');
+        }
+        const errorText = await response.text();
+        console.error('❌ API Error Response:', errorText);
+        throw new Error(`GitHub API error: ${response.status} ${response.statusText} - ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log('✅ GitHub API success:', data.total_count, 'total repos,', data.items?.length, 'tools returned');
+
+      if (data.items && data.items.length > 0) {
+        console.log('🔧 Transforming tools:', data.items.map(item => item.name).join(', '));
+        const transformedTools = this.transformRepositoryData(data.items);
+        console.log('✅ Final tools count:', transformedTools.length);
+        return transformedTools;
+      } else {
+        throw new Error('No tools found in response');
+      }
+    } catch (error) {
+      console.error('❌ GitHub API failed:', error.message);
+      console.error('❌ Full error:', error);
+      throw error;
     }
   }
 
-  // Search for security tools on GitHub
-  async searchSecurityTools(query = '', filters = {}) {
-    const searchQuery = this.buildSearchQuery(query, filters);
+  // Build broader search query for more diverse results
+  buildBroaderSearchQuery(query) {
+    const broaderTerms = [
+      'security', 'penetration', 'testing', 'cybersecurity', 'hacking', 
+      'vulnerability', 'exploit', 'scanner', 'forensics', 'malware', 
+      'analysis', 'osint', 'reconnaissance', 'enumeration', 'payload',
+      'backdoor', 'reverse-engineering', 'cryptography', 'steganography',
+      'wireless', 'network', 'web-security', 'mobile-security', 'iot-security',
+      'threat-hunting', 'incident-response', 'digital-forensics', 'memory-analysis',
+      'packet-analysis', 'log-analysis', 'social-engineering', 'phishing',
+      'red-team', 'blue-team', 'purple-team', 'ctf', 'bug-bounty'
+    ];
     
-    try {
-      // Use multiple API calls to get more comprehensive results
-      const [popularResponse, recentResponse] = await Promise.all([
-        fetch(`${this.baseUrl}/search/repositories?q=${searchQuery}&sort=stars&order=desc&per_page=50`, {
-          headers: this.headers
-        }),
-        fetch(`${this.baseUrl}/search/repositories?q=${searchQuery}&sort=updated&order=desc&per_page=50`, {
-          headers: this.headers
-        })
-      ]);
-
-      if (!popularResponse.ok || !recentResponse.ok) {
-        throw new Error(`GitHub API error: ${popularResponse.status || recentResponse.status}`);
-      }
-
-      const [popularData, recentData] = await Promise.all([
-        popularResponse.json(),
-        recentResponse.json()
-      ]);
-
-      // Combine and deduplicate results, prioritizing popular tools
-      const combinedItems = [...popularData.items, ...recentData.items];
-      const uniqueItems = combinedItems.filter((item, index, self) => 
-        index === self.findIndex(t => t.id === item.id)
-      );
-
-      // Sort by popularity score (combination of stars, forks, and recent activity)
-      uniqueItems.sort((a, b) => {
-        const scoreA = this.calculatePopularityScore(a);
-        const scoreB = this.calculatePopularityScore(b);
-        return scoreB - scoreA;
-      });
-
-      return this.transformRepositoryData(uniqueItems.slice(0, 100));
-    } catch (error) {
-      console.error('Error fetching security tools:', error);
-      throw error;
-    }
+    let searchQuery = query ? `${query} ` : '';
+    searchQuery += broaderTerms.slice(0, 10).join('+'); // Use first 10 terms to avoid query length limits
+    
+    return encodeURIComponent(searchQuery);
   }
 
   // Calculate popularity score for better sorting
@@ -71,51 +86,67 @@ class GitHubApiService {
     // Recent activity bonus
     const lastUpdate = new Date(repo.updated_at);
     const daysSinceUpdate = (Date.now() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24);
-    const recentBonus = Math.max(0, 100 - daysSinceUpdate);
+    const recentBonus = Math.max(0, 50 - daysSinceUpdate);
     
-    // Popularity score formula
-    return (stars * 3) + (forks * 2) + watchers + Math.max(0, 50 - issues) + recentBonus;
+    // Diversity bonus for different programming languages
+    const languageBonus = this.getLanguageBonus(repo.language);
+    
+    // Popularity score formula - adjusted to include smaller projects
+    return (stars * 2) + (forks * 1.5) + watchers + Math.max(0, 30 - issues) + recentBonus + languageBonus;
+  }
+
+  // Give bonus points for diverse programming languages
+  getLanguageBonus(language) {
+    const languageBonuses = {
+      'Python': 15,
+      'Go': 12,
+      'Rust': 10,
+      'C': 8,
+      'C++': 8,
+      'JavaScript': 6,
+      'Shell': 5,
+      'PowerShell': 5,
+      'Ruby': 4,
+      'Java': 4,
+      'C#': 3
+    };
+    return languageBonuses[language] || 2; // Small bonus for any language
   }
 
   // Build search query with filters
   buildSearchQuery(query, filters = {}) {
-    // Enhanced search terms for better security tool discovery
-    let searchQuery = 'security+tool+penetration+testing+cybersecurity+hacking+vulnerability+exploit+scanner+forensics+malware+analysis+red+team+blue+team+osint';
+    // Simple search that stays within GitHub's 5 operator limit
+    let searchQuery = '';
     
     if (query) {
-      searchQuery = `${query} ${searchQuery}`;
+      // User provided search term
+      searchQuery = query;
+    } else {
+      // Use broad terms that capture most security tools without exceeding operator limit
+      // Maximum 4 OR operators (5 terms total) to stay within GitHub's limit
+      searchQuery = 'security OR pentest OR vulnerability OR scanner OR forensics';
     }
 
-    // Prioritize repositories with more stars for better quality
-    const minStars = filters.minStars || 10;
-    searchQuery += `+stars:>=${minStars}`;
+    // Only add additional filters if specifically requested
+    if (filters.minStars && filters.minStars > 0) {
+      searchQuery += ` stars:>=${filters.minStars}`;
+    }
 
-    // Add language filters
     if (filters.language) {
-      searchQuery += `+language:${filters.language}`;
+      searchQuery += ` language:${filters.language}`;
     }
 
-    // Add date filters for active projects
     if (filters.updatedAfter) {
-      searchQuery += `+pushed:>=${filters.updatedAfter}`;
-    } else {
-      // Default to repositories updated in the last 2 years
-      const twoYearsAgo = new Date();
-      twoYearsAgo.setFullYear(twoYearsAgo.getFullYear() - 2);
-      searchQuery += `+pushed:>=${twoYearsAgo.toISOString().split('T')[0]}`;
+      searchQuery += ` pushed:>=${filters.updatedAfter}`;
     }
 
-    // Add topic filters for security tools
-    const securityTopics = ['security', 'penetration-testing', 'cybersecurity', 'hacking', 'vulnerability', 'exploit'];
-    if (filters.topics) {
+    if (filters.topics && filters.topics.length > 0) {
       filters.topics.forEach(topic => {
-        searchQuery += `+topic:${topic}`;
+        searchQuery += ` topic:${topic}`;
       });
-    } else {
-      // Add some default security topics
-      searchQuery += `+topic:security`;
     }
 
+    console.log('🔍 GitHub search query:', searchQuery);
     return encodeURIComponent(searchQuery);
   }
 
@@ -128,6 +159,7 @@ class GitHubApiService {
       description: repo.description || 'No description available',
       image: repo.owner.avatar_url,
       icon: this.getIconForRepo(repo),
+      category: this.getCategoryForRepo(repo), // Add proper category assignment
       tags: this.extractTags(repo),
       stars: repo.stargazers_count,
       forks: repo.forks_count,
@@ -150,6 +182,81 @@ class GitHubApiService {
       dependencies: 0, // Would need to analyze package files
       lastAudit: null // Would need security scanning
     }));
+  }
+
+  // Determine category for repository based on name, description, and topics
+  getCategoryForRepo(repo) {
+    const name = repo.name.toLowerCase();
+    const description = (repo.description || '').toLowerCase();
+    const topics = (repo.topics || []).join(' ').toLowerCase();
+    const content = `${name} ${description} ${topics}`;
+
+    // Network Security
+    if (content.includes('nmap') || content.includes('masscan') || content.includes('port scan') || 
+        content.includes('network') && (content.includes('scan') || content.includes('discover'))) {
+      return 'Network Security';
+    }
+
+    // Web Security
+    if (content.includes('burp') || content.includes('web') && (content.includes('vulnerab') || content.includes('scan')) ||
+        content.includes('sql injection') || content.includes('sqlmap') || content.includes('xss') ||
+        content.includes('web application') || content.includes('directory-buster') ||
+        content.includes('nikto') || content.includes('wpscan')) {
+      return 'Web Security';
+    }
+
+    // Penetration Testing
+    if (content.includes('metasploit') || content.includes('exploit') || content.includes('penetration') ||
+        content.includes('pentest') || content.includes('payload') || content.includes('backdoor') ||
+        content.includes('social engineer') || content.includes('red team') || content.includes('post-exploitation')) {
+      return 'Penetration Testing';
+    }
+
+    // OSINT
+    if (content.includes('osint') || content.includes('reconnaissance') || content.includes('recon') ||
+        content.includes('theharvester') || content.includes('sherlock') || content.includes('shodan') ||
+        content.includes('maltego') || content.includes('gathering') || content.includes('footprint') ||
+        content.includes('information gathering') || content.includes('subdomain') && content.includes('find')) {
+      return 'OSINT';
+    }
+
+    // Malware Analysis
+    if (content.includes('malware') || content.includes('forensic') || content.includes('volatility') ||
+        content.includes('yara') || content.includes('reverse engineer') || content.includes('binwalk') ||
+        content.includes('analysis') && (content.includes('binary') || content.includes('file')) ||
+        content.includes('disassemb') || content.includes('autopsy') || content.includes('memory analysis')) {
+      return 'Malware Analysis';
+    }
+
+    // Password Security
+    if (content.includes('hashcat') || content.includes('john') || content.includes('hydra') ||
+        content.includes('password') && (content.includes('crack') || content.includes('brute')) ||
+        content.includes('hash') && content.includes('crack') || content.includes('wordlist')) {
+      return 'Password Security';
+    }
+
+    // Wireless Security
+    if (content.includes('aircrack') || content.includes('wifi') || content.includes('wireless') ||
+        content.includes('wpa') || content.includes('wep') || content.includes('bluetooth')) {
+      return 'Wireless Security';
+    }
+
+    // Network Analysis
+    if (content.includes('wireshark') || content.includes('packet') || content.includes('tcpdump') ||
+        content.includes('network analysis') || content.includes('traffic analysis') ||
+        content.includes('protocol analy')) {
+      return 'Network Analysis';
+    }
+
+    // Vulnerability Scanning
+    if (content.includes('nuclei') || content.includes('openvas') || content.includes('nessus') ||
+        content.includes('vulnerability') && content.includes('scan') || content.includes('vuln scan') ||
+        content.includes('security scan')) {
+      return 'Vulnerability Scanning';
+    }
+
+    // Default fallback
+    return 'Network Security'; // Default category for unclassified security tools
   }
 
   // Get appropriate icon for repository
@@ -247,26 +354,71 @@ class GitHubApiService {
     return null;
   }
 
-  // Check if repository is trending
+  // Check if repository is trending - VERY restrictive for extraordinary tools only
   isTrending(repo) {
     const lastUpdate = new Date(repo.updated_at);
     const daysSinceUpdate = (Date.now() - lastUpdate.getTime()) / (1000 * 60 * 60 * 24);
     const stars = repo.stargazers_count || 0;
     const forks = repo.forks_count || 0;
+    const repoName = repo.name.toLowerCase();
+    const repoOwner = repo.owner.login.toLowerCase();
     
-    // More strict criteria for trending: recent activity + good popularity
-    return daysSinceUpdate < 30 && stars > 500 && forks > 50;
+    // Extremely restrictive criteria - only for exceptional tools
+    const isVeryPopular = stars > 5000; // Must have significant community
+    const isActivelyMaintained = daysSinceUpdate < 30; // Very recent activity
+    const hasStrongCommunity = forks > 500; // High fork count indicates real adoption
+    
+    // Additional criteria for exceptional tools
+    const isExceptionalTool = [
+      'metasploit-framework', 'nuclei', 'burp-extensions', 'sqlmap',
+      'nmap', 'aircrack-ng', 'hashcat', 'wireshark', 'volatility',
+      'radare2', 'ghidra', 'theharvester', 'sherlock', 'subfinder'
+    ].includes(repoName);
+    
+    const isTopSecurityOrg = [
+      'rapid7', 'projectdiscovery', 'nmap', 'sqlmapproject', 
+      'portswigger', 'zaproxy', 'owasp'
+    ].includes(repoOwner);
+    
+    // Must meet all criteria AND be exceptional
+    return isActivelyMaintained && isVeryPopular && hasStrongCommunity && 
+           (isExceptionalTool || isTopSecurityOrg);
   }
 
-  // Check if repository is security verified
+  // Check if repository is security verified - EXTREMELY restrictive for trusted tools only
   isSecurityVerified(repo) {
     const stars = repo.stargazers_count || 0;
     const forks = repo.forks_count || 0;
-    const hasLicense = repo.license && repo.license.name;
-    const hasDescription = repo.description && repo.description.length > 30;
+    const repoName = repo.name.toLowerCase();
+    const repoOwner = repo.owner.login.toLowerCase();
     
-    // Enhanced verification criteria
-    return stars > 100 && forks > 20 && hasLicense && hasDescription;
+    // List of ONLY the most trusted, established security tools
+    const trustedTools = [
+      'metasploit-framework', 'nmap', 'sqlmap', 'nuclei', 'wireshark',
+      'hashcat', 'john', 'aircrack-ng', 'volatility', 'yara',
+      'radare2', 'theharvester', 'sherlock', 'masscan', 'amass',
+      'subfinder', 'gobuster', 'ffuf', 'hydra', 'nikto', 'wpscan'
+    ];
+    
+    const trustedOrganizations = [
+      'rapid7', 'nmap', 'sqlmapproject', 'projectdiscovery', 
+      'wireshark', 'hashcat', 'openwall', 'aircrack-ng',
+      'volatilityfoundation', 'virustotal', 'radareorg'
+    ];
+    
+    // EXTREMELY strict criteria - must be well-known AND highly adopted
+    const isTrustedTool = trustedTools.includes(repoName);
+    const isTrustedOrg = trustedOrganizations.includes(repoOwner);
+    const isHighlyAdopted = stars > 5000 && forks > 500; // Very high thresholds
+    const hasLicense = repo.license && repo.license.name;
+    const hasDescription = repo.description && repo.description.length > 50;
+    
+    // Must be in trusted list OR be extremely popular AND meet quality criteria
+    return hasLicense && hasDescription && (
+      isTrustedTool || 
+      isTrustedOrg || 
+      (isHighlyAdopted && stars > 10000) // Only extremely popular tools outside trusted list
+    );
   }
 
   // Format repository size
@@ -300,21 +452,21 @@ class GitHubApiService {
   async getTrendingTools() {
     try {
       const filters = {
-        minStars: 500, // Increased minimum stars for higher quality tools
-        updatedAfter: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // Last 30 days
+        minStars: 50, // Significantly reduced from 500 to include more tools
+        updatedAfter: new Date(Date.now() - 60 * 24 * 60 * 60 * 1000).toISOString().split('T')[0] // Last 60 days
       };
 
       const tools = await this.searchSecurityTools('', filters);
       
       // If we get tools, return them sorted by popularity
       if (tools && tools.length > 0) {
-        // Further filter for trending tools (recent activity + high popularity)
+        // Further filter for trending tools (recent activity + reasonable popularity)
         const trendingTools = tools.filter(tool => {
           const daysSinceUpdate = (Date.now() - new Date(tool.lastUpdated).getTime()) / (1000 * 60 * 60 * 24);
-          return daysSinceUpdate < 30 && tool.stars > 100;
+          return daysSinceUpdate < 60 && tool.stars > 20; // Much lower threshold
         });
         
-        return trendingTools.length > 0 ? trendingTools : tools.slice(0, 10);
+        return trendingTools.length > 0 ? trendingTools : tools.slice(0, 15);
       }
       
       // If no tools returned, throw error to trigger fallback
@@ -322,7 +474,7 @@ class GitHubApiService {
     } catch (error) {
       console.error('Error fetching trending tools:', error);
       
-      // Return enhanced fallback data with more popular tools
+      // Return enhanced fallback data with more diverse tools
       return [
         {
           id: 'fallback-1',
@@ -384,119 +536,177 @@ class GitHubApiService {
         },
         {
           id: 'fallback-3',
-          name: 'Nmap',
-          author: 'nmap',
-          description: 'Network Mapper - Free and open source utility for network discovery and security auditing. The standard tool for network reconnaissance.',
+          name: 'Nuclei',
+          author: 'projectdiscovery',
+          description: 'Fast and customizable vulnerability scanner based on simple YAML templates. Used for finding security issues across web applications.',
           image: '/assets/images/no_image.png',
-          icon: 'Network',
-          tags: ['Network Security', 'Port Scanning', 'Service Detection', 'Network Discovery', 'Security Auditing'],
-          stars: 9800,
+          icon: 'Search',
+          tags: ['Vulnerability Scanner', 'YAML Templates', 'Fast Scanning', 'Web Security', 'Automation'],
+          stars: 18200,
           forks: 2400,
           contributors: 156,
           rating: 4.6,
-          reviews: 1247,
-          language: 'C++',
+          reviews: 847,
+          language: 'Go',
           platform: 'Cross-platform',
           maturity: 'production',
-          lastUpdated: new Date(Date.now() - 86400000 * 3),
-          githubUrl: 'https://github.com/nmap/nmap',
-          documentationUrl: 'https://nmap.org/docs.html',
+          lastUpdated: new Date(Date.now() - 86400000 * 1),
+          githubUrl: 'https://github.com/projectdiscovery/nuclei',
+          documentationUrl: 'https://nuclei.projectdiscovery.io/',
           trending: true,
           securityVerified: true,
           issues: 45,
           pullRequests: 12,
           discussions: 89,
-          license: 'GPL-2.0',
+          license: 'MIT',
           size: '25.4 MB',
           dependencies: 8,
           lastAudit: '2024-01-15'
         },
         {
           id: 'fallback-4',
-          name: 'Burp Suite Community Edition',
-          author: 'portswigger',
-          description: 'The world\'s #1 web application security testing toolkit. Free, community edition of the popular web vulnerability scanner.',
+          name: 'Subfinder',
+          author: 'projectdiscovery',
+          description: 'Fast subdomain discovery tool that discovers valid subdomains for websites by using passive online sources.',
           image: '/assets/images/no_image.png',
           icon: 'Globe',
-          tags: ['Web Security', 'Vulnerability Scanner', 'Proxy Tool', 'HTTP Interceptor', 'Web Application Testing'],
+          tags: ['Subdomain Discovery', 'OSINT', 'Reconnaissance', 'Passive Scanning', 'Bug Bounty'],
           stars: 9200,
           forks: 1200,
           contributors: 45,
           rating: 4.5,
-          reviews: 890,
-          language: 'Java',
+          reviews: 423,
+          language: 'Go',
           platform: 'Cross-platform',
           maturity: 'production',
-          lastUpdated: new Date(Date.now() - 86400000 * 4),
-          githubUrl: 'https://github.com/portswigger/burp-extensions',
-          documentationUrl: 'https://portswigger.net/burp/documentation',
+          lastUpdated: new Date(Date.now() - 86400000 * 3),
+          githubUrl: 'https://github.com/projectdiscovery/subfinder',
+          documentationUrl: 'https://github.com/projectdiscovery/subfinder',
           trending: true,
           securityVerified: true,
           issues: 12,
           pullRequests: 3,
-          discussions: 156,
+          discussions: 56,
           license: 'MIT',
-          size: '45.2 MB',
-          dependencies: 67,
+          size: '15.2 MB',
+          dependencies: 23,
           lastAudit: '2024-01-18'
         },
         {
           id: 'fallback-5',
-          name: 'OWASP ZAP',
-          author: 'zaproxy',
-          description: 'The world\'s most widely used web app scanner. Free security tool for automatically finding security vulnerabilities in web applications.',
+          name: 'Gobuster',
+          author: 'OJ',
+          description: 'Directory/File, DNS and VHost busting tool written in Go. Fast and efficient brute force tool.',
           image: '/assets/images/no_image.png',
-          icon: 'Shield',
-          tags: ['Web Security', 'OWASP', 'Vulnerability Scanner', 'Security Testing', 'Web Application Security'],
-          stars: 12400,
-          forks: 2200,
-          contributors: 234,
+          icon: 'Search',
+          tags: ['Directory Busting', 'DNS Enumeration', 'VHost Discovery', 'Brute Force', 'Go'],
+          stars: 8900,
+          forks: 1100,
+          contributors: 67,
           rating: 4.4,
-          reviews: 567,
-          language: 'Java',
+          reviews: 345,
+          language: 'Go',
           platform: 'Cross-platform',
           maturity: 'production',
           lastUpdated: new Date(Date.now() - 86400000 * 5),
-          githubUrl: 'https://github.com/zaproxy/zaproxy',
-          documentationUrl: 'https://www.zaproxy.org/docs/',
+          githubUrl: 'https://github.com/OJ/gobuster',
+          documentationUrl: 'https://github.com/OJ/gobuster',
           trending: false,
-          securityVerified: true,
-          issues: 89,
-          pullRequests: 23,
-          discussions: 234,
+          securityVerified: false,
+          issues: 23,
+          pullRequests: 8,
+          discussions: 78,
           license: 'Apache-2.0',
-          size: '78.9 MB',
-          dependencies: 123,
+          size: '8.7 MB',
+          dependencies: 12,
           lastAudit: '2024-01-12'
         },
         {
           id: 'fallback-6',
-          name: 'Wireshark',
-          author: 'wireshark',
-          description: 'The world\'s foremost and widely-used network protocol analyzer. Deep inspection of hundreds of protocols and live capture analysis.',
+          name: 'Amass',
+          author: 'caffix',
+          description: 'In-depth attack surface mapping and asset discovery. Network mapping for bug bounty and penetration testing.',
           image: '/assets/images/no_image.png',
-          icon: 'Activity',
-          tags: ['Network Analysis', 'Packet Capture', 'Protocol Analysis', 'Network Forensics', 'Traffic Analysis'],
-          stars: 7200,
+          icon: 'Network',
+          tags: ['Asset Discovery', 'Attack Surface Mapping', 'Network Enumeration', 'OSINT', 'Reconnaissance'],
+          stars: 11200,
           forks: 1800,
-          contributors: 234,
+          contributors: 89,
           rating: 4.3,
-          reviews: 456,
-          language: 'C',
+          reviews: 234,
+          language: 'Go',
           platform: 'Cross-platform',
           maturity: 'production',
-          lastUpdated: new Date(Date.now() - 86400000 * 6),
-          githubUrl: 'https://github.com/wireshark/wireshark',
-          documentationUrl: 'https://www.wireshark.org/docs/',
+          lastUpdated: new Date(Date.now() - 86400000 * 7),
+          githubUrl: 'https://github.com/caffix/amass',
+          documentationUrl: 'https://github.com/caffix/amass',
           trending: false,
           securityVerified: true,
           issues: 34,
-          pullRequests: 8,
+          pullRequests: 15,
           discussions: 123,
-          license: 'GPL-2.0',
-          size: '8.7 MB',
-          dependencies: 23,
+          license: 'Apache-2.0',
+          size: '22.3 MB',
+          dependencies: 34,
           lastAudit: '2024-01-08'
+        },
+        {
+          id: 'fallback-7',
+          name: 'FFuF',
+          author: 'ffuf',
+          description: 'Fast web fuzzer written in Go. High-performance fuzzing tool for web application testing.',
+          image: '/assets/images/no_image.png',
+          icon: 'Zap',
+          tags: ['Web Fuzzing', 'Fast Scanning', 'Directory Discovery', 'Parameter Testing', 'Go'],
+          stars: 11800,
+          forks: 1300,
+          contributors: 45,
+          rating: 4.5,
+          reviews: 567,
+          language: 'Go',
+          platform: 'Cross-platform',
+          maturity: 'production',
+          lastUpdated: new Date(Date.now() - 86400000 * 4),
+          githubUrl: 'https://github.com/ffuf/ffuf',
+          documentationUrl: 'https://github.com/ffuf/ffuf',
+          trending: true,
+          securityVerified: false,
+          issues: 18,
+          pullRequests: 5,
+          discussions: 67,
+          license: 'MIT',
+          size: '12.1 MB',
+          dependencies: 8,
+          lastAudit: '2024-01-14'
+        },
+        {
+          id: 'fallback-8',
+          name: 'Hydra',
+          author: 'vanhauser-thc',
+          description: 'Very fast network logon cracker which supports many different services. Password brute force tool.',
+          image: '/assets/images/no_image.png',
+          icon: 'Key',
+          tags: ['Password Cracking', 'Brute Force', 'Network Services', 'Login Testing', 'Authentication'],
+          stars: 8600,
+          forks: 1600,
+          contributors: 78,
+          rating: 4.2,
+          reviews: 423,
+          language: 'C',
+          platform: 'Linux/Unix',
+          maturity: 'production',
+          lastUpdated: new Date(Date.now() - 86400000 * 6),
+          githubUrl: 'https://github.com/vanhauser-thc/thc-hydra',
+          documentationUrl: 'https://github.com/vanhauser-thc/thc-hydra',
+          trending: false,
+          securityVerified: true,
+          issues: 45,
+          pullRequests: 12,
+          discussions: 89,
+          license: 'AGPL-3.0',
+          size: '5.8 MB',
+          dependencies: 15,
+          lastAudit: '2024-01-11'
         }
       ];
     }

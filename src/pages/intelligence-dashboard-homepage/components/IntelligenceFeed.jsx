@@ -108,16 +108,19 @@ const IntelligenceFeed = ({ feeds }) => {
                   <Button
                     variant="ghost"
                     size="sm"
-                    iconName="Bookmark"
-                    iconSize={14}
-                    className="text-text-secondary hover:text-accent"
-                  />
-                  <Button
-                    variant="ghost"
-                    size="sm"
                     iconName="Share"
                     iconSize={14}
                     className="text-text-secondary hover:text-accent"
+                    onClick={() => {
+                      if (navigator.share) {
+                        navigator.share({
+                          title: item.title,
+                          text: item.description,
+                          url: window.location.href
+                        });
+                      }
+                    }}
+                    title="Share"
                   />
                   <Button
                     variant="ghost"
@@ -125,6 +128,8 @@ const IntelligenceFeed = ({ feeds }) => {
                     iconName="ExternalLink"
                     iconSize={14}
                     className="text-accent hover:bg-accent/10"
+                    onClick={() => window.open(item.url || '/tool-arsenal-discovery', '_blank')}
+                    title="View details"
                   >
                     View
                   </Button>
@@ -132,19 +137,6 @@ const IntelligenceFeed = ({ feeds }) => {
               </div>
             </div>
           ))}
-        </div>
-
-        {/* Load More */}
-        <div className="text-center mt-8">
-          <Button
-            variant="outline"
-            size="lg"
-            className="border-accent/30 text-accent hover:bg-accent/10"
-            iconName="RefreshCw"
-            iconSize={16}
-          >
-            Load More Intelligence
-          </Button>
         </div>
       </div>
     </section>

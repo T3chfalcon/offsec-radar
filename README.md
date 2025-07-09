@@ -2,44 +2,64 @@
 
 A modern, community-driven platform for discovering and exploring cybersecurity tools from GitHub's ecosystem. Built with React, Vite, and Tailwind CSS.
 
-![OffSec Radar](https://images.unsplash.com/photo-1555949963-aa79dcee981c?w=1200&h=600&fit=crop&crop=entropy&cs=tinysrgb)
+![OffSec Radar](https://offsecradar.com/assets/images/offsec-radar-social.png)
 
-## 🚀 Features
+## 🚀 Live Demo
 
-- **Comprehensive Tool Database**: Curated collection of 15+ popular security tools
-- **Advanced Filtering**: Filter by category, programming language, popularity, and features
-- **Modern UI/UX**: Clean, responsive design with smooth animations
-- **Real-time Search**: Instant search across tools, descriptions, and tags
-- **Tool Comparison**: Compare multiple tools side-by-side
-- **Favorites System**: Save and organize your favorite tools
-- **GitHub Integration**: Real-time data from GitHub API with fallback database
-- **Responsive Design**: Works perfectly on desktop, tablet, and mobile
+**[Visit OffSec Radar →](https://offsec-radar.vercel.app)**
 
-## 🛠️ Categories
+## ✨ Features
 
-- **Network Security** - Nmap, Wireshark
-- **Penetration Testing** - Metasploit Framework
-- **Web Security** - Burp Suite, SQLMap, Nikto
-- **OSINT** - theHarvester, Sherlock
-- **Malware Analysis** - Volatility, YARA
-- **Password Security** - Hashcat, John the Ripper
-- **Wireless Security** - Aircrack-ng
-- **Mobile Security** - Mobile Security Framework (MobSF)
-- **Vulnerability Scanning** - Nuclei
-- **Social Engineering** - Social Engineer Toolkit
+### 🔥 **Enhanced Tool Discovery**
+* **100+ Security Tools**: Real-time data from GitHub API with curated fallback database
+* **Smart Categorization**: Intelligent tool classification across 9+ security categories
+* **Advanced Search**: Instant search across tool names, descriptions, tags, and authors
+* **GitHub Integration**: Direct access to repositories, documentation, and project details
+
+### 🎯 **Quality & Trust**
+* **Verified Tools**: Ultra-restrictive verification for only the most trusted security tools
+* **Trending Algorithm**: Exclusive trending badges for truly exceptional tools (>5K stars, active maintenance)
+* **Community Driven**: Real-time GitHub metrics (stars, forks, last updated)
+* **No Spam**: Curated selection prevents tool noise and ensures quality
+
+### 🎨 **Modern Experience**
+* **Beautiful UI**: Clean, responsive design with smooth animations
+* **Fast Performance**: Optimized for speed with efficient API usage
+* **Mobile First**: Perfect experience on desktop, tablet, and mobile
+* **Accessibility**: Built with modern web standards and best practices
+
+### 🔧 **Smart Filtering**
+* **Category Filters**: Network Security, Web Security, OSINT, Malware Analysis, and more
+* **Real-time Results**: Instant filtering without page reloads
+* **Intelligent Sorting**: By relevance, stars, recent activity, name, and trending status
+* **Grid & Table Views**: Choose your preferred browsing experience
+
+## 🛠️ Tool Categories
+
+* **🌐 Network Security** - Nmap, MASSCAN, Wireshark
+* **🔍 Penetration Testing** - Metasploit Framework, Nuclei, Hydra
+* **🌍 Web Security** - Burp Suite, SQLMap, Nikto, WPScan
+* **👁️ OSINT** - theHarvester, Sherlock, Subfinder, Amass
+* **🔬 Malware Analysis** - Volatility, YARA, Radare2, Binwalk
+* **🔑 Password Security** - Hashcat, John the Ripper
+* **📡 Wireless Security** - Aircrack-ng
+* **📱 Mobile Security** - Mobile Security Framework (MobSF)
+* **🎯 Vulnerability Scanning** - Nuclei, OpenVAS
+* **🕵️ Social Engineering** - Social Engineer Toolkit
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Node.js 18+ 
-- npm or yarn
+
+* Node.js 18+
+* npm or yarn
 
 ### Installation
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/offsec-radar.git
-   cd offsec-radar/github_radar
+   git clone https://github.com/T3chfalcon/offsec-radar.git
+   cd offsec-radar
    ```
 
 2. **Install dependencies**
@@ -47,20 +67,13 @@ A modern, community-driven platform for discovering and exploring cybersecurity 
    npm install
    ```
 
-3. **Set up environment variables (optional)**
+3. **Start development server**
    ```bash
-   cp env.example .env
-   # Add your GitHub API token for enhanced rate limits
-   VITE_GITHUB_API_TOKEN=your_github_token_here
+   npm start
    ```
 
-4. **Start development server**
-   ```bash
-   npm run start
-   ```
-
-5. **Open your browser**
-   Navigate to `http://localhost:3000`
+4. **Open your browser**
+   Navigate to `http://localhost:4028`
 
 ## 📦 Build for Production
 
@@ -72,111 +85,116 @@ The built files will be in the `dist` directory.
 
 ## 🌐 Deploy to Vercel
 
-### Option 1: Automatic Deployment (Recommended)
+### Automatic Deployment (Recommended)
 
 1. **Fork this repository**
-
 2. **Connect to Vercel**
-   - Go to [Vercel Dashboard](https://vercel.com/dashboard)
-   - Click "New Project"
-   - Import your forked repository
-   - Set the root directory to `github_radar`
-   - Deploy!
-
-3. **Enable Analytics** (Optional)
-   - In your Vercel project settings, enable Analytics
-   - Analytics are already integrated in the code
-
-### Option 2: Manual Deployment
-
-1. **Install Vercel CLI**
-   ```bash
-   npm i -g vercel
-   ```
-
-2. **Deploy**
-   ```bash
-   cd github_radar
-   vercel --prod
-   ```
+   * Go to [Vercel Dashboard](https://vercel.com)
+   * Click "New Project" 
+   * Import your forked repository
+   * Deploy automatically!
 
 ### GitHub Actions Deployment
 
-The repository includes a GitHub Actions workflow that automatically deploys to Vercel on every push to main.
+The repository includes automated deployment via GitHub Actions on every push to main.
 
-**Setup required secrets in GitHub:**
-- `VERCEL_TOKEN` - Your Vercel token
-- `VERCEL_ORG_ID` - Your Vercel organization ID  
-- `VERCEL_PROJECT_ID` - Your Vercel project ID
+## 🔧 Technical Highlights
 
-## 🔧 Configuration
+### **GitHub API Integration**
+* **Public API Usage**: 60 requests/hour without authentication
+* **Intelligent Fallback**: Seamless fallback to curated database if API fails
+* **Rate Limit Handling**: Smart error handling and user feedback
+* **Real-time Data**: Live repository stats and activity metrics
 
-### Environment Variables
+### **Performance Optimizations**
+* **Efficient Search**: Optimized search queries within GitHub's 5 operator limit
+* **Smart Caching**: Browser caching for improved performance
+* **Lazy Loading**: Images and components loaded on demand
+* **Bundle Optimization**: Code splitting and tree shaking
 
-- `VITE_GITHUB_API_TOKEN` - GitHub personal access token for API requests (optional)
-
-### Customization
-
-- **Add new tools**: Edit `src/data/securityTools.js`
-- **Modify categories**: Update `toolCategories` in the same file
-- **Change styling**: Edit Tailwind classes or `src/styles/`
-- **Update filters**: Modify `ModernFilterSidebar.jsx`
+### **Security & Privacy**
+* **No Token Exposure**: Secure public API usage without exposed secrets
+* **Privacy First**: No user tracking beyond anonymous analytics
+* **Secure Links**: All external links properly sanitized
+* **Content Security**: XSS protection and secure headers
 
 ## 🏗️ Project Structure
 
 ```
-github_radar/
-├── public/                 # Static assets
+offsec-radar/
+├── public/                 # Static assets and images
 ├── src/
 │   ├── components/        # Reusable UI components
-│   ├── pages/            # Page components
-│   ├── data/             # Static data and tools database
-│   ├── services/         # API services
-│   └── styles/           # CSS and styling
-├── .github/workflows/    # GitHub Actions
-├── vercel.json          # Vercel configuration
+│   │   ├── ui/           # Core UI components (Button, Input, etc.)
+│   │   └── AppImage.jsx  # Smart image loading with fallbacks
+│   ├── pages/            # Page components and routing
+│   │   ├── tool-arsenal-discovery/  # Main tools page
+│   │   ├── intelligence-dashboard-homepage/  # Homepage
+│   │   └── about-git-hub-radar/     # About page
+│   ├── data/             # Curated tools database and categories
+│   ├── services/         # GitHub API integration
+│   └── styles/           # Tailwind CSS configuration
+├── .github/workflows/    # Automated deployment
+├── vercel.json          # Vercel deployment config
 └── package.json         # Dependencies and scripts
 ```
 
+## 🔥 Recent Major Improvements
+
+### **v2.0 - GitHub Integration & Enhanced Discovery**
+* ✅ **100+ Tools**: Expanded from 29 to 100+ tools via GitHub API
+* ✅ **Smart Categories**: Auto-categorization of GitHub tools into proper categories
+* ✅ **Quality Filters**: Ultra-restrictive verification (only trusted tools get ✓)
+* ✅ **Trending Algorithm**: Exclusive trending for exceptional tools only
+* ✅ **Enhanced UI**: "View on GitHub" buttons for every tool
+* ✅ **Performance**: Optimized API queries and error handling
+* ✅ **Mobile Ready**: Responsive design improvements
+
+### **Developer Experience**
+* ✅ **Hot Reload**: Instant development feedback with Vite
+* ✅ **Modern Stack**: React 18, Tailwind CSS 3, ES Modules
+* ✅ **Clean Architecture**: Modular components and services
+* ✅ **Type Safety**: JSConfig for better IDE support
+
 ## 🤝 Contributing
 
-We welcome contributions! Here's how you can help:
+We welcome contributions from the security community! 
 
-1. **Add new security tools** to the database
-2. **Improve the UI/UX** with better designs
-3. **Enhance filtering** with new categories
-4. **Fix bugs** and improve performance
-5. **Add new features** like tool reviews, ratings
+### **Ways to Contribute:**
+* 🔧 **Add Security Tools** - Expand our curated database
+* 🎨 **Improve UI/UX** - Better designs and user experience  
+* 🐛 **Fix Bugs** - Help us maintain quality
+* ⚡ **Performance** - Optimize speed and efficiency
+* 📝 **Documentation** - Help others understand the project
 
-### Adding a New Tool
-
-1. Edit `src/data/securityTools.js`
-2. Add your tool object with all required fields
-3. Ensure the category exists in `toolCategories`
+### **Quick Contribution:**
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-tool`
+3. Add your changes to `src/data/securityTools.js`
 4. Test the filtering and search functionality
 5. Submit a pull request
 
-## 📊 Analytics
+## 📊 Analytics & Metrics
 
-The platform includes Vercel Analytics for tracking:
-- Page views and user engagement
-- Popular tools and search terms
-- Performance metrics
-- User behavior insights
+* **Vercel Analytics**: Page views, performance metrics, and user engagement
+* **Privacy Focused**: Anonymous analytics only, no personal data collection
+* **Performance Monitoring**: Core Web Vitals and loading metrics
+* **Community Insights**: Popular tools and search patterns
 
-## 🔒 Security
+## 🔒 Security & Privacy
 
-- No user data collection beyond analytics
-- All external links open in new tabs
-- GitHub API integration with rate limiting
-- Secure deployment with HTTPS
+* **🔐 Secure by Design**: No API tokens exposed to browser
+* **🚫 No Tracking**: Privacy-first approach with minimal data collection  
+* **✅ HTTPS Only**: Secure connections for all requests
+* **🛡️ Content Security**: XSS protection and secure headers
+* **🔍 Transparent**: Open source for full security audit
 
 ## 📱 Browser Support
 
-- Chrome 90+
-- Firefox 88+
-- Safari 14+
-- Edge 90+
+* **Chrome 90+** ✅
+* **Firefox 88+** ✅  
+* **Safari 14+** ✅
+* **Edge 90+** ✅
 
 ## 📄 License
 
@@ -184,20 +202,21 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- **Security Community** - For creating amazing open-source tools
-- **GitHub** - For hosting the tools and providing API access
-- **Vercel** - For excellent hosting and analytics
-- **Tailwind CSS** - For the utility-first CSS framework
-- **React Team** - For the amazing framework
+* **🔒 Security Community** - For creating incredible open-source tools
+* **🐙 GitHub** - For hosting tools and providing excellent API access
+* **⚡ Vercel** - For seamless hosting and deployment
+* **🎨 Tailwind CSS** - For the utility-first CSS framework
+* **⚛️ React Team** - For the amazing development experience
 
-## 📞 Support
+## 📞 Support & Contact
 
-- 🐛 **Bug Reports**: Open an issue on GitHub
-- 💡 **Feature Requests**: Open an issue with the "enhancement" label
-- 📧 **General Questions**: Start a discussion on GitHub
+* 🐛 **Bug Reports**: [Create an issue](https://github.com/T3chfalcon/offsec-radar/issues)
+* 💡 **Feature Requests**: [Open an enhancement issue](https://github.com/T3chfalcon/offsec-radar/issues/new)
+* 🐦 **Twitter**: [@t3chfalcon](https://x.com/t3chfalcon)
+* 📧 **Email**: [contact@offsecradar.com](mailto:contact@offsecradar.com)
 
 ---
 
-**Made with ❤️ for the cybersecurity community**
+**Made with ❤️ by [x.com/@t3chfalcon](https://x.com/t3chfalcon) for the community**
 
-[Live Demo](https://your-vercel-url.vercel.app) | [GitHub](https://github.com/yourusername/offsec-radar)
+**[🚀 Live Demo](https://offsec-radar.vercel.app)** | **[📱 GitHub](https://github.com/T3chfalcon/offsec-radar)**

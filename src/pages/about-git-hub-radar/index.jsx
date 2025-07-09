@@ -35,8 +35,8 @@ const AboutGitHubRadar = () => {
         
         {/* Enhanced Twitter Cards */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content="@OffsecRadar" />
-        <meta name="twitter:creator" content="@OffsecRadar" />
+        <meta name="twitter:site" content="@t3chfalcon" />
+        <meta name="twitter:creator" content="@t3chfalcon" />
         <meta name="twitter:title" content="About OffSec Radar - Professional Security Tool Discovery" />
         <meta name="twitter:description" content="Learn about our mission to revolutionize cybersecurity tool discovery through community collaboration and GitHub integration." />
         <meta name="twitter:image" content="https://offsecradar.com/assets/images/offsec-radar-about.png" />
@@ -47,28 +47,24 @@ const AboutGitHubRadar = () => {
         <meta name="googlebot" content="index, follow" />
         <link rel="canonical" href="https://offsecradar.com/about-git-hub-radar" />
         
-        {/* Structured Data */}
+        {/* Schema.org Structured Data */}
         <script type="application/ld+json">
-          {`
-            {
-              "@context": "https://schema.org",
-              "@type": "AboutPage",
-              "name": "About OffSec Radar",
-              "description": "Learn about OffSec Radar's mission to revolutionize cybersecurity tool discovery",
-              "url": "https://offsecradar.com/about-git-hub-radar",
-              "mainEntity": {
-                "@type": "Organization",
-                "name": "OffSec Radar",
-                "description": "Professional cybersecurity tool discovery platform",
-                "url": "https://offsecradar.com/",
-                "foundingDate": "2024",
-                "sameAs": [
-                  "https://twitter.com/OffsecRadar",
-                  "https://github.com/offsecradar"
-                ]
-              }
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "OffSec Radar",
+            description: "Professional security tool discovery platform",
+            url: "https://offsecradar.com",
+            logo: "https://offsecradar.com/assets/images/logo.png",
+            sameAs: [
+              "https://x.com/t3chfalcon",
+              "https://github.com/T3chfalcon/offsec-radar"
+            ],
+            founder: {
+              "@type": "Person",
+              name: "T3chfalcon"
             }
-          `}
+          })}
         </script>
       </Helmet>
 

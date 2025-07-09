@@ -139,6 +139,7 @@ const TrendingToolsCarousel = ({ tools }) => {
                           iconName="ExternalLink"
                           iconSize={14}
                           className="text-accent hover:bg-accent/10"
+                          onClick={() => window.open(tool.githubUrl || tool.url, '_blank')}
                         >
                           View
                         </Button>

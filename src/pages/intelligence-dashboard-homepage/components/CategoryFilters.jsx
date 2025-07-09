@@ -26,40 +26,29 @@ const CategoryFilters = ({ categories, activeCategory, onCategoryChange }) => {
                   : 'border-primary-700 bg-primary-800/50 hover:border-accent/50 hover:bg-accent/5'
               }`}
             >
+              {/* Icon */}
+              <div className={`w-12 h-12 rounded-lg flex items-center justify-center mb-4 mx-auto ${
+                activeCategory === category.id ? category.color : 'bg-primary-700'
+              }`}>
+                <Icon 
+                  name={category.icon} 
+                  size={24} 
+                  className={activeCategory === category.id ? 'text-white' : 'text-primary-foreground/70'} 
+                />
+              </div>
+
+              {/* Content */}
               <div className="text-center">
-                <div className={`w-16 h-16 mx-auto mb-4 rounded-xl flex items-center justify-center transition-all duration-300 ${
-                  activeCategory === category.id
-                    ? 'bg-accent text-primary scale-110'
-                    : `${category.bgColor} group-hover:scale-105`
-                }`}>
-                  <Icon 
-                    name={category.icon} 
-                    size={28} 
-                    className={activeCategory === category.id ? 'text-primary' : 'text-white'} 
-                  />
-                </div>
-                
-                <h3 className={`font-semibold mb-2 transition-colors duration-300 ${
-                  activeCategory === category.id
-                    ? 'text-accent' :'text-primary-foreground group-hover:text-accent'
+                <h3 className={`font-semibold mb-2 ${
+                  activeCategory === category.id ? 'text-accent' : 'text-primary-foreground'
                 }`}>
                   {category.name}
                 </h3>
-                
-                <p className="text-sm text-primary-foreground/60 mb-3">
-                  {category.description}
+                <p className={`text-sm ${
+                  activeCategory === category.id ? 'text-accent/80' : 'text-primary-foreground/60'
+                }`}>
+                  {category.count} tools
                 </p>
-                
-                <div className="flex items-center justify-center space-x-4 text-xs">
-                  <div className="flex items-center space-x-1">
-                    <Icon name="Package" size={12} className="text-primary-foreground/50" />
-                    <span className="text-primary-foreground/70">{category.toolCount} tools</span>
-                  </div>
-                  <div className="flex items-center space-x-1">
-                    <Icon name="TrendingUp" size={12} className="text-accent" />
-                    <span className="text-accent">{category.growth}</span>
-                  </div>
-                </div>
               </div>
 
               {/* Active Indicator */}
@@ -73,46 +62,6 @@ const CategoryFilters = ({ categories, activeCategory, onCategoryChange }) => {
               <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-accent/0 via-accent/5 to-accent/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             </button>
           ))}
-        </div>
-
-        {/* Advanced Filters */}
-        <div className="mt-8 flex flex-wrap items-center justify-center gap-3">
-          <Button
-            variant="ghost"
-            size="sm"
-            iconName="Filter"
-            iconSize={16}
-            className="text-primary-foreground/70 hover:text-accent hover:bg-accent/10"
-          >
-            Advanced Filters
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            iconName="SortDesc"
-            iconSize={16}
-            className="text-primary-foreground/70 hover:text-accent hover:bg-accent/10"
-          >
-            Sort by Activity
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            iconName="Calendar"
-            iconSize={16}
-            className="text-primary-foreground/70 hover:text-accent hover:bg-accent/10"
-          >
-            Date Range
-          </Button>
-          <Button
-            variant="ghost"
-            size="sm"
-            iconName="Star"
-            iconSize={16}
-            className="text-primary-foreground/70 hover:text-accent hover:bg-accent/10"
-          >
-            Top Rated
-          </Button>
         </div>
       </div>
     </section>

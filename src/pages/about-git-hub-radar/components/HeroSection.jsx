@@ -1,6 +1,5 @@
 import React from 'react';
 import Icon from '../../../components/AppIcon';
-import Button from '../../../components/ui/Button';
 
 const HeroSection = () => {
   return (
@@ -39,28 +38,6 @@ const HeroSection = () => {
           <p className="text-base sm:text-lg md:text-xl text-primary-foreground/80 mb-12 max-w-3xl mx-auto leading-relaxed px-4">
             Discover security tools from GitHub's ecosystem. Built by the community, for the community.
           </p>
-          
-          {/* CTA Buttons */}
-          <div className="flex flex-col sm:flex-row items-center justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-            <Button
-              variant="primary"
-              size="lg"
-              className="bg-conversion text-conversion-foreground hover:bg-conversion/90 font-semibold px-8 py-4"
-              iconName="Search"
-              iconSize={20}
-            >
-              Explore Tools
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="border-accent/30 text-accent hover:bg-accent/10 px-8 py-4"
-              iconName="GitHub"
-              iconSize={20}
-            >
-              View on GitHub
-            </Button>
-          </div>
           
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-8 mt-12 sm:mt-16 pt-12 sm:pt-16 border-t border-accent/20">

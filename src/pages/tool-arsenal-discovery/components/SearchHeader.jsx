@@ -9,8 +9,6 @@ const SearchHeader = ({
   viewMode, 
   onViewModeChange, 
   onFilterToggle, 
-  selectedTools, 
-  onCompareSelected,
   sortBy,
   onSortChange,
   totalTools,
@@ -20,7 +18,7 @@ const SearchHeader = ({
   const sortOptions = [
     { value: 'relevance', label: 'Relevance', icon: 'Target' },
     { value: 'stars', label: 'Most Stars', icon: 'Star' },
-    { value: 'updated', label: 'Recently Updated', icon: 'Clock' },
+
     { value: 'name', label: 'Name A-Z', icon: 'AlphabeticalOrder' },
     { value: 'rating', label: 'Highest Rated', icon: 'Award' },
     { value: 'trending', label: 'Trending', icon: 'TrendingUp' }
@@ -77,29 +75,11 @@ const SearchHeader = ({
                 {/* Results and Actions Row */}
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           {/* Results Count */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+          <div>
             <span className="text-sm text-primary-600">
               <span className="font-semibold text-primary-900">{filteredTools}</span> of{' '}
               <span className="font-semibold text-primary-900">{totalTools}</span> tools
             </span>
-            {selectedTools.length > 0 && (
-              <div className="flex items-center space-x-2">
-                <span className="text-sm text-accent font-medium">
-                  {selectedTools.length} selected
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={onCompareSelected}
-                  iconName="GitCompare"
-                  iconSize={16}
-                  disabled={selectedTools.length < 2 || selectedTools.length > 4}
-                  className="border-accent/30 text-accent hover:bg-accent/10"
-                >
-                  Compare
-                </Button>
-              </div>
-            )}
           </div>
 
           {/* View Controls */}

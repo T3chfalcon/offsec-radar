@@ -5,32 +5,28 @@ import ModernFilterSidebar from './components/ModernFilterSidebar';
 import SearchHeader from './components/SearchHeader';
 import ToolCard from './components/ToolCard';
 import ToolTable from './components/ToolTable';
-import ComparisonModal from './components/ComparisonModal';
+
 import Icon from '../../components/AppIcon';
 import Button from '../../components/ui/Button';
-import { securityTools } from '../../data/securityTools';
+import { securityTools, toolCategories, calculateCategoryCounts } from '../../data/securityTools';
 import githubApi from '../../services/githubApi';
 
 const ToolArsenalDiscovery = () => {
   const [filters, setFilters] = useState({
     search: '',
-    categories: [],
-    languages: [],
-    popularity: [],
-    features: []
+    categories: []
   });
   
   const [viewMode, setViewMode] = useState('grid');
   const [sortBy, setSortBy] = useState('relevance');
-  const [selectedTools, setSelectedTools] = useState([]);
   const [isFilterSidebarOpen, setIsFilterSidebarOpen] = useState(false);
-  const [isComparisonModalOpen, setIsComparisonModalOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [tools, setTools] = useState([]);
   const [error, setError] = useState(null);
+  const [categoriesWithCounts, setCategoriesWithCounts] = useState(toolCategories);
 
-  const toolsPerPage = 12;
+  const toolsPerPage = 24; // Increased from 12 to show more tools per page
 
   // Initialize tools from our database
   useEffect(() => {
@@ -47,22 +43,45 @@ const ToolArsenalDiscovery = () => {
           setFilters(prev => ({ ...prev, search: searchQuery }));
         }
         
+        let loadedTools = [];
+        
         // Try to fetch from GitHub API first, fallback to our database
         try {
+          console.log('🔍 Attempting to fetch tools from GitHub API...');
           const fetchedTools = await githubApi.searchSecurityTools(searchQuery);
+          console.log('✅ GitHub API Response:', fetchedTools?.length, 'tools fetched');
+          
           if (fetchedTools && fetchedTools.length > 0) {
-            setTools(fetchedTools);
+            console.log('🚀 Using GitHub API tools:', fetchedTools.length);
+            loadedTools = fetchedTools;
           } else {
-            setTools(securityTools);
+            console.log('⚠️ No tools from GitHub API, using local database:', securityTools.length);
+            loadedTools = securityTools;
           }
         } catch (apiError) {
-          console.warn('GitHub API failed, using local database:', apiError);
-          setTools(securityTools);
+          console.warn('❌ GitHub API failed, using local database:', apiError.message);
+          console.log('📚 Using local database with', securityTools.length, 'tools');
+          loadedTools = securityTools;
         }
+        
+        setTools(loadedTools);
+        
+        // Update category counts based on loaded tools
+        const newCategoryCounts = calculateCategoryCounts(loadedTools);
+        const updatedCategories = toolCategories.map(category => ({
+          ...category,
+          count: newCategoryCounts[category.id] || 0
+        }));
+        setCategoriesWithCounts(updatedCategories);
+        
+        console.log('📊 Category counts updated:', updatedCategories.map(c => `${c.name}: ${c.count}`).join(', '));
+        console.log('🔧 Sample tool categories:', loadedTools.slice(0, 5).map(t => `${t.name}: ${t.category}`).join(', '));
+        
       } catch (err) {
         console.error('Error initializing tools:', err);
         setError('Failed to load tools. Using local database.');
         setTools(securityTools);
+        setCategoriesWithCounts(toolCategories);
       } finally {
         setIsLoading(false);
       }
@@ -73,8 +92,10 @@ const ToolArsenalDiscovery = () => {
 
   // Filter and sort tools
   const filteredAndSortedTools = useMemo(() => {
+    console.log('🔍 Filtering tools with filters:', filters);
+    
     let filtered = tools.filter(tool => {
-      // Search filter
+      // Search filter - improved with more comprehensive matching
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
         const matchesSearch = 
@@ -82,84 +103,23 @@ const ToolArsenalDiscovery = () => {
           tool.description.toLowerCase().includes(searchLower) ||
           tool.tags.some(tag => tag.toLowerCase().includes(searchLower)) ||
           tool.author.toLowerCase().includes(searchLower) ||
-          tool.category.toLowerCase().includes(searchLower);
+          tool.category.toLowerCase().includes(searchLower) ||
+          tool.language.toLowerCase().includes(searchLower) ||
+          tool.platform.toLowerCase().includes(searchLower);
         if (!matchesSearch) return false;
       }
 
-      // Category filter
-      if (filters.categories.length > 0) {
+      // Category filter - fixed to properly match category IDs
+      if (filters.categories && filters.categories.length > 0) {
         const toolCategoryId = tool.category.toLowerCase().replace(/\s+/g, '-');
-        if (!filters.categories.includes(toolCategoryId)) return false;
-      }
-
-      // Language filter
-      if (filters.languages.length > 0) {
-        const hasMatchingLanguage = filters.languages.some(lang => {
-          switch (lang) {
-            case 'python':
-              return tool.language === 'Python';
-            case 'go':
-              return tool.language === 'Go';
-            case 'rust':
-              return tool.language === 'Rust';
-            case 'javascript':
-              return tool.language === 'JavaScript';
-            case 'c-cpp':
-              return ['C', 'C++'].includes(tool.language);
-            case 'java':
-              return tool.language === 'Java';
-            case 'bash':
-              return tool.language === 'Shell' || tool.language === 'Bash';
-            default:
-              return false;
-          }
-        });
-        if (!hasMatchingLanguage) return false;
-      }
-
-      // Popularity filter
-      if (filters.popularity.length > 0) {
-        const hasMatchingPopularity = filters.popularity.some(pop => {
-          switch (pop) {
-            case 'trending':
-              return tool.trending;
-            case 'most-starred':
-              return tool.stars > 10000;
-            case 'recently-updated':
-              const daysSinceUpdate = (Date.now() - new Date(tool.lastUpdated).getTime()) / (1000 * 60 * 60 * 24);
-              return daysSinceUpdate < 30;
-            case 'verified':
-              return tool.securityVerified;
-            default:
-              return false;
-          }
-        });
-        if (!hasMatchingPopularity) return false;
-      }
-
-      // Features filter
-      if (filters.features.length > 0) {
-        const hasMatchingFeature = filters.features.some(feature => {
-          switch (feature) {
-            case 'cli-tool':
-              return tool.tags.some(tag => tag.toLowerCase().includes('cli') || tag.toLowerCase().includes('command'));
-            case 'gui-tool':
-              return tool.tags.some(tag => tag.toLowerCase().includes('gui') || tool.platform.includes('Windows'));
-            case 'web-based':
-              return tool.tags.some(tag => tag.toLowerCase().includes('web'));
-            case 'cross-platform':
-              return tool.platform.includes('Cross-platform') || tool.platform.includes('/');
-            default:
-              return false;
-          }
-        });
-        if (!hasMatchingFeature) return false;
+        const isMatch = filters.categories.includes(toolCategoryId);
+        if (!isMatch) return false;
       }
 
       return true;
     });
 
-    // Sort tools
+    // Enhanced sorting with more options
     filtered.sort((a, b) => {
       switch (sortBy) {
         case 'stars':
@@ -168,13 +128,21 @@ const ToolArsenalDiscovery = () => {
           return new Date(b.lastUpdated) - new Date(a.lastUpdated);
         case 'name':
           return a.name.localeCompare(b.name);
-
+        case 'rating':
+          return (b.rating || 0) - (a.rating || 0);
         case 'trending':
+          // Trending tools first, then by stars
           if (a.trending && !b.trending) return -1;
           if (!a.trending && b.trending) return 1;
           return b.stars - a.stars;
+        case 'forks':
+          return b.forks - a.forks;
+        case 'contributors':
+          return (b.contributors || 0) - (a.contributors || 0);
         default:
-          // Relevance sort - trending first, then by stars
+          // Relevance sort - prioritize verified, trending, then stars
+          if (a.securityVerified && !b.securityVerified) return -1;
+          if (!a.securityVerified && b.securityVerified) return 1;
           if (a.trending && !b.trending) return -1;
           if (!a.trending && b.trending) return 1;
           return b.stars - a.stars;
@@ -220,10 +188,7 @@ const ToolArsenalDiscovery = () => {
   const handleClearFilters = () => {
     setFilters({
       search: '',
-      categories: [],
-      languages: [],
-      popularity: [],
-      features: []
+      categories: []
     });
     setCurrentPage(1);
   };
@@ -241,24 +206,7 @@ const ToolArsenalDiscovery = () => {
     }
   };
 
-  const handleSelectTool = (toolId, checked) => {
-    setSelectedTools(prev => 
-      checked 
-        ? [...prev, toolId]
-        : prev.filter(id => id !== toolId)
-    );
-  };
 
-  const handleSelectAll = (checked) => {
-    setSelectedTools(checked ? paginatedTools.map(tool => tool.id) : []);
-  };
-
-  const handleCompare = (toolIds) => {
-    if (Array.isArray(toolIds)) {
-      setSelectedTools(toolIds);
-    }
-    setIsComparisonModalOpen(true);
-  };
 
   const handlePageChange = (page) => {
     setCurrentPage(page);
@@ -286,8 +234,8 @@ const ToolArsenalDiscovery = () => {
         
         {/* Enhanced Twitter Cards */}
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:site" content="@OffsecRadar" />
-        <meta name="twitter:creator" content="@OffsecRadar" />
+        <meta name="twitter:site" content="@t3chfalcon" />
+        <meta name="twitter:creator" content="@t3chfalcon" />
         <meta name="twitter:title" content="Security Tool Discovery - OffSec Radar" />
         <meta name="twitter:description" content="Discover the best open-source security tools from GitHub. Filter by category, language, and features." />
         <meta name="twitter:image" content="https://offsecradar.com/assets/images/offsec-radar-tools.png" />
@@ -331,8 +279,6 @@ const ToolArsenalDiscovery = () => {
             onSortChange={setSortBy}
             totalTools={filteredAndSortedTools.length}
             filteredTools={paginatedTools.length}
-            selectedTools={selectedTools}
-            onCompareSelected={() => handleCompare(selectedTools)}
             onFilterToggle={() => setIsFilterSidebarOpen(!isFilterSidebarOpen)}
           />
 
@@ -346,6 +292,7 @@ const ToolArsenalDiscovery = () => {
                   onClearFilters={handleClearFilters}
                   isOpen={isFilterSidebarOpen}
                   onToggle={() => setIsFilterSidebarOpen(!isFilterSidebarOpen)}
+                  categoriesWithCounts={categoriesWithCounts}
                 />
               </div>
 
@@ -375,17 +322,6 @@ const ToolArsenalDiscovery = () => {
                           Showing <span className="font-semibold">{paginatedTools.length}</span> of{' '}
                           <span className="font-semibold">{filteredAndSortedTools.length}</span> tools
                         </p>
-                        {selectedTools.length > 0 && (
-                          <Button
-                            variant="primary"
-                            size="sm"
-                            onClick={() => handleCompare(selectedTools)}
-                            iconName="GitCompare"
-                            iconSize={16}
-                          >
-                            Compare {selectedTools.length} tools
-                          </Button>
-                        )}
                       </div>
                     </div>
 
@@ -396,18 +332,13 @@ const ToolArsenalDiscovery = () => {
                           <ToolCard
                             key={tool.id}
                             tool={tool}
-                            isSelected={selectedTools.includes(tool.id)}
                             onShare={() => handleShare(tool)}
-                            onSelect={(checked) => handleSelectTool(tool.id, checked)}
                           />
                         ))}
                       </div>
                     ) : (
                       <ToolTable
                         tools={paginatedTools}
-                        selectedTools={selectedTools}
-                        onSelectTool={handleSelectTool}
-                        onSelectAll={handleSelectAll}
                         onShare={handleShare}
                       />
                     )}
@@ -470,14 +401,6 @@ const ToolArsenalDiscovery = () => {
           </div>
         </main>
       </div>
-
-      {/* Comparison Modal */}
-      {isComparisonModalOpen && (
-        <ComparisonModal
-          tools={tools.filter(tool => selectedTools.includes(tool.id))}
-          onClose={() => setIsComparisonModalOpen(false)}
-        />
-      )}
     </>
   );
 };

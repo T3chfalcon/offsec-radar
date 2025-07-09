@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
 
-const ToolTable = ({ tools, onShare, onCompare, selectedTools, onSelectTool, onSelectAll }) => {
+const ToolTable = ({ tools, onShare }) => {
   const [sortConfig, setSortConfig] = useState({ key: 'stars', direction: 'desc' });
 
   const handleSort = (key) => {
@@ -36,16 +36,7 @@ const ToolTable = ({ tools, onShare, onCompare, selectedTools, onSelectTool, onS
     return num.toString();
   };
 
-  const getTimeAgo = (date) => {
-    const now = new Date();
-    const diffTime = Math.abs(now - new Date(date));
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 1) return '1d';
-    if (diffDays < 7) return `${diffDays}d`;
-    if (diffDays < 30) return `${Math.ceil(diffDays / 7)}w`;
-    return `${Math.ceil(diffDays / 30)}m`;
-  };
+
 
 
 
@@ -72,38 +63,14 @@ const ToolTable = ({ tools, onShare, onCompare, selectedTools, onSelectTool, onS
     </th>
   );
 
-  const allSelected = selectedTools.length === tools.length;
-  const someSelected = selectedTools.length > 0 && selectedTools.length < tools.length;
-
   return (
     <div className="bg-white rounded-xl border border-primary-200 overflow-hidden">
-      {/* Table Header Actions */}
+      {/* Table Header */}
       <div className="px-6 py-4 bg-primary-50 border-b border-primary-200">
         <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-4">
-            <span className="text-sm font-medium text-primary-700">
-              {tools.length} tools found
-            </span>
-            {selectedTools.length > 0 && (
-              <span className="text-sm text-accent font-medium">
-                {selectedTools.length} selected
-              </span>
-            )}
-          </div>
-          {selectedTools.length > 0 && (
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onCompare(selectedTools)}
-                iconName="GitCompare"
-                iconSize={16}
-                disabled={selectedTools.length < 2 || selectedTools.length > 4}
-              >
-                Compare ({selectedTools.length})
-              </Button>
-            </div>
-          )}
+          <span className="text-sm font-medium text-primary-700">
+            {tools.length} tools found
+          </span>
         </div>
       </div>
 
@@ -112,22 +79,12 @@ const ToolTable = ({ tools, onShare, onCompare, selectedTools, onSelectTool, onS
         <table className="min-w-full divide-y divide-primary-200">
           <thead className="bg-primary-50">
             <tr>
-              <th className="px-6 py-4 text-left">
-                <input
-                  type="checkbox"
-                  checked={allSelected}
-                  ref={input => {
-                    if (input) input.indeterminate = someSelected;
-                  }}
-                  onChange={(e) => onSelectAll(e.target.checked)}
-                  className="w-4 h-4 text-accent bg-white border-2 border-primary-300 rounded focus:ring-accent focus:ring-2"
-                />
-              </th>
+
               <SortableHeader label="Tool" sortKey="name" className="min-w-[300px]" />
               <SortableHeader label="Stars" sortKey="stars" />
               <SortableHeader label="Forks" sortKey="forks" />
               <SortableHeader label="Language" sortKey="language" />
-              <SortableHeader label="Updated" sortKey="lastUpdated" />
+
               <th className="px-6 py-4 text-left text-xs font-semibold text-primary-700 uppercase tracking-wider">
                 Actions
               </th>
@@ -137,19 +94,8 @@ const ToolTable = ({ tools, onShare, onCompare, selectedTools, onSelectTool, onS
             {sortedTools.map((tool) => (
               <tr 
                 key={tool.id} 
-                className={`hover:bg-primary-50 transition-colors duration-200 ${
-                  selectedTools.includes(tool.id) ? 'bg-accent/5' : ''
-                }`}
+                className="hover:bg-primary-50 transition-colors duration-200"
               >
-                {/* Checkbox */}
-                <td className="px-6 py-4">
-                  <input
-                    type="checkbox"
-                    checked={selectedTools.includes(tool.id)}
-                    onChange={(e) => onSelectTool(tool.id, e.target.checked)}
-                    className="w-4 h-4 text-accent bg-white border-2 border-primary-300 rounded focus:ring-accent focus:ring-2"
-                  />
-                </td>
 
                 {/* Tool Info */}
                 <td className="px-6 py-4">
@@ -210,14 +156,52 @@ const ToolTable = ({ tools, onShare, onCompare, selectedTools, onSelectTool, onS
                   </div>
                 </td>
 
-                {/* Updated */}
-                <td className="px-6 py-4 text-sm text-primary-600">
-                  {getTimeAgo(tool.lastUpdated)}
-                </td>
+
 
                 {/* Actions */}
                 <td className="px-6 py-4">
                   <div className="flex items-center space-x-2">
+                    {/* Primary Action: Website or GitHub */}
+                    {tool.websiteUrl ? (
+                      <Button
+                        variant="primary"
+                        size="sm"
+                        onClick={() => window.open(tool.websiteUrl, '_blank')}
+                        iconName="ExternalLink"
+                        iconSize={16}
+                        className="px-3"
+                        title="Visit website"
+                      >
+                        Website
+                      </Button>
+                    ) : (
+                      <Button
+                        variant="primary" 
+                        size="sm"
+                        onClick={() => window.open(tool.githubUrl, '_blank')}
+                        iconName="Github"
+                        iconSize={16}
+                        className="px-3"
+                        title="View on GitHub"
+                      >
+                        GitHub
+                      </Button>
+                    )}
+                    
+                    {/* Documentation if available */}
+                    {tool.documentationUrl && (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => window.open(tool.documentationUrl, '_blank')}
+                        iconName="FileText"
+                        iconSize={16}
+                        className="px-2"
+                        title="View documentation"
+                      />
+                    )}
+                    
+                    {/* Share button */}
                     <Button
                       variant="ghost"
                       size="sm"
@@ -225,14 +209,7 @@ const ToolTable = ({ tools, onShare, onCompare, selectedTools, onSelectTool, onS
                       iconName="Share2"
                       iconSize={16}
                       className="px-2"
-                    />
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => window.open(tool.githubUrl, '_blank')}
-                      iconName="ExternalLink"
-                      iconSize={16}
-                      className="px-2"
+                      title="Share tool"
                     />
                   </div>
                 </td>

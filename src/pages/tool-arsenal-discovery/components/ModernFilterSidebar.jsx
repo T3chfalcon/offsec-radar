@@ -2,15 +2,11 @@ import React, { useState } from 'react';
 import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
-import { toolCategories } from '../../../data/securityTools';
 
-const ModernFilterSidebar = ({ filters, onFilterChange, onClearFilters, isOpen, onToggle }) => {
+const ModernFilterSidebar = ({ filters, onFilterChange, onClearFilters, isOpen, onToggle, categoriesWithCounts }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedSections, setExpandedSections] = useState({
-    categories: true,
-    languages: true,
-    popularity: true,
-    features: true
+    categories: true
   });
 
   const toggleSection = (section) => {
@@ -23,30 +19,6 @@ const ModernFilterSidebar = ({ filters, onFilterChange, onClearFilters, isOpen, 
   const handleFilterChange = (category, value, checked) => {
     onFilterChange(category, value, checked);
   };
-
-  const languages = [
-    { id: 'python', name: 'Python', icon: '🐍', count: 45 },
-    { id: 'go', name: 'Go', icon: '🔵', count: 32 },
-    { id: 'javascript', name: 'JavaScript', icon: '🟨', count: 28 },
-    { id: 'c-cpp', name: 'C/C++', icon: '⚡', count: 24 },
-    { id: 'rust', name: 'Rust', icon: '🦀', count: 18 },
-    { id: 'java', name: 'Java', icon: '☕', count: 16 },
-    { id: 'bash', name: 'Bash/Shell', icon: '🐚', count: 22 }
-  ];
-
-  const popularityFilters = [
-    { id: 'trending', name: 'Trending', icon: 'TrendingUp', count: 12 },
-    { id: 'most-starred', name: 'Most Starred', icon: 'Star', count: 25 },
-    { id: 'recently-updated', name: 'Recently Updated', icon: 'Clock', count: 18 },
-    { id: 'verified', name: 'Security Verified', icon: 'ShieldCheck', count: 35 }
-  ];
-
-  const featureFilters = [
-    { id: 'cli-tool', name: 'CLI Tool', icon: 'Terminal', count: 28 },
-    { id: 'gui-tool', name: 'GUI Tool', icon: 'Monitor', count: 15 },
-    { id: 'web-based', name: 'Web-based', icon: 'Globe', count: 12 },
-    { id: 'cross-platform', name: 'Cross-platform', icon: 'Layers', count: 32 }
-  ];
 
   const FilterChip = ({ label, count, isActive, onClick, icon, color = 'bg-primary-100' }) => (
     <button
@@ -196,75 +168,12 @@ const ModernFilterSidebar = ({ filters, onFilterChange, onClearFilters, isOpen, 
             onToggle={() => toggleSection('categories')}
           >
             <div className="grid grid-cols-1 gap-2">
-              {toolCategories.map((category) => (
+              {categoriesWithCounts.map((category) => (
                 <CategoryCard
                   key={category.id}
                   category={category}
                   isActive={filters.categories?.includes(category.id)}
                   onClick={() => handleFilterChange('categories', category.id, !filters.categories?.includes(category.id))}
-                />
-              ))}
-            </div>
-          </CollapsibleSection>
-
-          {/* Programming Languages */}
-          <CollapsibleSection
-            title="Programming Languages"
-            icon="Code"
-            isExpanded={expandedSections.languages}
-            onToggle={() => toggleSection('languages')}
-          >
-            <div className="space-y-2">
-              {languages.map((lang) => (
-                <FilterChip
-                  key={lang.id}
-                  label={lang.name}
-                  count={lang.count}
-                  icon={lang.icon}
-                  isActive={filters.languages?.includes(lang.id)}
-                  onClick={() => handleFilterChange('languages', lang.id, !filters.languages?.includes(lang.id))}
-                />
-              ))}
-            </div>
-          </CollapsibleSection>
-
-          {/* Popularity */}
-          <CollapsibleSection
-            title="Popularity & Status"
-            icon="TrendingUp"
-            isExpanded={expandedSections.popularity}
-            onToggle={() => toggleSection('popularity')}
-          >
-            <div className="space-y-2">
-              {popularityFilters.map((filter) => (
-                <FilterChip
-                  key={filter.id}
-                  label={filter.name}
-                  count={filter.count}
-                  icon={filter.icon}
-                  isActive={filters.popularity?.includes(filter.id)}
-                  onClick={() => handleFilterChange('popularity', filter.id, !filters.popularity?.includes(filter.id))}
-                />
-              ))}
-            </div>
-          </CollapsibleSection>
-
-          {/* Features */}
-          <CollapsibleSection
-            title="Features & Type"
-            icon="Settings"
-            isExpanded={expandedSections.features}
-            onToggle={() => toggleSection('features')}
-          >
-            <div className="space-y-2">
-              {featureFilters.map((filter) => (
-                <FilterChip
-                  key={filter.id}
-                  label={filter.name}
-                  count={filter.count}
-                  icon={filter.icon}
-                  isActive={filters.features?.includes(filter.id)}
-                  onClick={() => handleFilterChange('features', filter.id, !filters.features?.includes(filter.id))}
                 />
               ))}
             </div>

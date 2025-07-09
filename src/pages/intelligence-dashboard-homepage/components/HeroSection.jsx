@@ -1,14 +1,25 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Icon from '../../../components/AppIcon';
 import Button from '../../../components/ui/Button';
 import Input from '../../../components/ui/Input';
 
 const HeroSection = ({ onSearch, searchValue, setSearchValue, stats }) => {
+  const navigate = useNavigate();
+  
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     if (searchValue.trim()) {
       onSearch(searchValue);
     }
+  };
+
+  const handleExploreTools = () => {
+    navigate('/tool-arsenal-discovery');
+  };
+
+  const handleViewGitHub = () => {
+    window.open('https://github.com/T3chfalcon/offsec-radar', '_blank');
   };
 
   return (
@@ -124,6 +135,7 @@ const HeroSection = ({ onSearch, searchValue, setSearchValue, stats }) => {
               className="bg-conversion text-conversion-foreground hover:bg-conversion/90 font-semibold"
               iconName="Search"
               iconSize={20}
+              onClick={handleExploreTools}
             >
               Explore Tools
             </Button>
@@ -133,24 +145,17 @@ const HeroSection = ({ onSearch, searchValue, setSearchValue, stats }) => {
               className="border-accent/30 text-accent hover:bg-accent/10"
               iconName="GitHub"
               iconSize={20}
+              onClick={handleViewGitHub}
             >
               View on GitHub
             </Button>
           </div>
         </div>
 
-        {/* Scroll Indicator */}
-        <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-          <div className="flex flex-col items-center space-y-2 animate-bounce">
-            <span className="text-primary-foreground/60 text-sm">Explore Tools</span>
-            <Icon name="ChevronDown" size={20} className="text-accent" />
-          </div>
+        {/* Real-time Activity Indicator */}
+        <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent to-transparent opacity-60">
+          <div className="h-full bg-accent animate-intelligence-flow"></div>
         </div>
-      </div>
-
-      {/* Real-time Activity Indicator */}
-      <div className="absolute bottom-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-accent to-transparent opacity-60">
-        <div className="h-full bg-accent animate-intelligence-flow"></div>
       </div>
     </section>
   );

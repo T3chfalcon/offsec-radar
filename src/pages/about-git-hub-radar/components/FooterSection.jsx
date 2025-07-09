@@ -15,9 +15,8 @@ const FooterSection = () => {
   };
 
   const socialLinks = [
-    { name: 'GitHub', icon: 'Github', href: 'https://github.com/offsec-radar' },
-    { name: 'Discord', icon: 'MessageCircle', href: 'https://discord.gg/offsec-radar' },
-    { name: 'Twitter', icon: 'Twitter', href: 'https://twitter.com/offsec_radar' }
+    { name: 'GitHub', icon: 'Github', href: 'https://github.com/T3chfalcon/offsec-radar' },
+    { name: 'Twitter', icon: 'Twitter', href: 'https://x.com/t3chfalcon' }
   ];
 
   return (
@@ -107,7 +106,7 @@ const FooterSection = () => {
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-2 text-primary-foreground/60 text-sm">
                 <Icon name="Heart" size={14} />
-                <span>Made with ❤️ by the community</span>
+                <span>Made with ❤️ by <a href="https://x.com/t3chfalcon" target="_blank" rel="noopener noreferrer" className="text-accent hover:text-accent/80">x.com/@t3chfalcon</a> for the community</span>
               </div>
             </div>
           </div>
